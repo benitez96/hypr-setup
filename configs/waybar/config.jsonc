@@ -1,0 +1,28 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 34,
+  "modules-left": ["hyprland/workspaces"],
+  "modules-center": ["clock"],
+  "modules-right": ["network", "pulseaudio", "battery", "custom/theme"],
+
+  "custom/theme": {
+    "format": "",
+    "on-click": "~/.config/waybar/toggle-theme.sh"
+  },
+
+  "network": {
+    "format": "{ssid}",
+    "format-disconnected": "Offline",
+    "on-click": "networkmanager_dmenu"
+  },
+
+  "pulseaudio": {
+    "format": "{volume}% ",
+    "format-muted": "Muted "
+  },
+
+  "clock": {
+    "format": "{:%Y-%m-%d %H:%M}"
+  }
+}

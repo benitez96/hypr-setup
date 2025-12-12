@@ -1,0 +1,36 @@
+# ~/.zshrc
+
+export EDITOR="nvim"
+export TERMINAL="ghostty"
+
+# Historial
+HISTSIZE=5000
+SAVEHIST=5000
+setopt INC_APPEND_HISTORY
+setopt SHARE_HISTORY
+
+# Compleciones
+autoload -Uz compinit
+compinit
+
+# Opciones de calidad de vida
+setopt AUTO_CD
+setopt CORRECT
+setopt NO_BEEP
+
+# Aliases básicos
+alias ls='ls --color=auto'
+alias ll='ls -lh'
+alias la='ls -lha'
+alias ..='cd ..'
+alias ...='cd ../..'
+
+# Git atajos simples
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git log --oneline --graph --decorate'
+
+# Inicializar Starship
+eval "$(starship init zsh)"
