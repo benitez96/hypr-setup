@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Fusiona múltiples PDFs en uno solo
+
+if [ $# -lt 2 ]; then
+  echo "Uso: pdfmerge in1.pdf in2.pdf ... salida.pdf"
+  exit 1
+fi
+
+OUTPUT="${@: -1}"
+INPUTS="${@:1:$(($#-1))}"
+
+gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile="$OUTPUT" $INPUTS
+

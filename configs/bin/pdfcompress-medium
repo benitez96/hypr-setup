@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Comprime PDF con calidad media (balance tamaño/calidad)
+
+if [ $# -lt 2 ]; then
+  echo "Uso: pdfcompress-medium input.pdf output.pdf"
+  exit 1
+fi
+
+gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 \
+   -dPDFSETTINGS=/ebook -dNOPAUSE -dQUIET -dBATCH \
+   -sOutputFile="$2" "$1"
+

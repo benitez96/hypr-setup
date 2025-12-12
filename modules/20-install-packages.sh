@@ -21,4 +21,6 @@ echo "[20] Instalando paquetes desde AUR con yay..."
 
 yay -S --needed --noconfirm \
   ghostty \
-  ttf-jetbrains-mono-nerd
+  ttf-jetbrains-mono-nerd \
+  lazygit \
+  lazydocker
