@@ -5,5 +5,6 @@ echo "[30] Habilitando servicios..."
 
 sudo systemctl enable NetworkManager
 sudo systemctl enable greetd
+sudo systemctl enable bluetooth
 
 echo "[30] Servicios habilitados: NetworkManager, greetd."

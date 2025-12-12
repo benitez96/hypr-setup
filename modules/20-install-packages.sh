@@ -12,10 +12,13 @@ sudo pacman -Sy --needed --noconfirm \
   thunar thunar-volman tumbler \
   lf \
   zsh starship \
-  papirus-icon-theme bibata-cursor-theme adw-gtk3 \
+  papirus-icon-theme adw-gtk-theme \
   cliphist playerctl jq \
   flatpak \
-  greetd tuigreet
+  greetd tuigreet \
+  pipewire pipewire-pulse pipewire-alsa pipewire-jack wireplumber \
+  pavucontrol \
+  bluez bluez-utils blueman
 
 echo "[20] Instalando paquetes desde AUR con yay..."
 
