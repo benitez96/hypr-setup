@@ -1,7 +1,0 @@
-[terminal]
-vt = 1
-
-[default_session]
-command = "tuigreet --time --time-format '%a, %d %b %Y  %H:%M' --greeting 'Welcome to Arch Linux' --user-menu --user-menu-min-uid 1000 --remember --remember-session --remember-user-session --asterisks --theme 'background=black;border=cyan;prompt=blue;time=bright-black;action=magenta;text=white' --cmd Hyprland"
-user = "greeter"
-

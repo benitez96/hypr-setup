@@ -20,5 +20,6 @@ matching=fuzzy
 hide_on_key_release=true
 
 # Appearance
-image_size=24
+image_size=48
 gtk_theme=adw-gtk3-dark
+icon_theme=Papirus

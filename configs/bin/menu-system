@@ -17,7 +17,7 @@ case "$choice" in
   'Reboot')
     systemctl reboot
     ;;
-  'Power off')
+  'Poweroff')
     systemctl poweroff
     ;;
   *)

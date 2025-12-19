@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+choice="$(printf '%s\n' \
+  'Install Web App' \
+  'Audio Settings' \
+  'WiFi' \
+  'Bluetooth' \
+  'Update System' \
+  | wofi --show dmenu --prompt 'Setup: ')"
+
+case "$choice" in
+  'Install Web App')
+    webapp-install
+    ;;
+  'Audio Settings')
+    pavucontrol &
+    ;;
+  'WiFi')
+    launch-wifi
+    ;;
+  'Bluetooth')
+    launch-bluetooth
+    ;;
+  'Update System')
+    ghostty --class=floating_terminal -e bash -c 'system-update; read -n 1'
+    ;;
+  *)
+    exit 0
+    ;;
+esac
+

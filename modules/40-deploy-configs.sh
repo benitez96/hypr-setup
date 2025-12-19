@@ -52,8 +52,10 @@ cp -f "${REPO_DIR}/configs/bin/menu-system"      "${HOME}/.local/bin/menu-system
 cp -f "${REPO_DIR}/configs/bin/menu-windows"     "${HOME}/.local/bin/menu-windows"
 cp -f "${REPO_DIR}/configs/bin/menu-clipboard"   "${HOME}/.local/bin/menu-clipboard"
 cp -f "${REPO_DIR}/configs/bin/menu-utilities"   "${HOME}/.local/bin/menu-utilities"
+cp -f "${REPO_DIR}/configs/bin/menu-network"     "${HOME}/.local/bin/menu-network"
+cp -f "${REPO_DIR}/configs/bin/menu-setup"       "${HOME}/.local/bin/menu-setup"
 
-chmod +x "${HOME}/.local/bin/"{menu-main,menu-screenshots,menu-system,menu-windows,menu-clipboard,menu-utilities}
+chmod +x "${HOME}/.local/bin/"{menu-main,menu-screenshots,menu-system,menu-windows,menu-clipboard,menu-utilities,menu-network,menu-setup}
 
 # Binary scripts (screenshot and PDF helpers)
 mkdir -p "${HOME}/.local/bin"
@@ -79,9 +81,11 @@ cp -f "${REPO_DIR}/configs/bin/battery-monitor" "${HOME}/.local/bin/battery-moni
 cp -f "${REPO_DIR}/configs/bin/lock-screen" "${HOME}/.local/bin/lock-screen"
 chmod +x "${HOME}/.local/bin/"{check-updates,system-update,launch-wifi,launch-bluetooth,launch-webapp,webapp-install,launch-or-focus-tui,battery-remaining,battery-monitor,lock-screen}
 
-# greetd (requires sudo)
-echo "[40] Configuring greetd (requires sudo)..."
-sudo mkdir -p /etc/greetd
-sudo cp -f "${REPO_DIR}/configs/greetd/config.toml" /etc/greetd/config.toml
+# SDDM (requires sudo)
+echo "[40] Configuring SDDM (requires sudo)..."
+sudo mkdir -p /etc/sddm.conf.d
+if [ ! -f /etc/sddm.conf.d/autologin.conf ]; then
+  sudo cp -f "${REPO_DIR}/configs/sddm/autologin.conf" /etc/sddm.conf.d/autologin.conf
+fi
 
 echo "[40] Configurations deployed."
