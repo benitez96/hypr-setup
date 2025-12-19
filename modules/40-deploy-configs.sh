@@ -86,11 +86,14 @@ chmod +x "${HOME}/.local/bin/"{check-updates,system-update,launch-wifi,launch-bl
 echo "[40] Configuring SDDM (requires sudo)..."
 sudo mkdir -p /etc/sddm.conf.d
 if [ ! -f /etc/sddm.conf.d/autologin.conf ]; then
-  sudo cp -f "${REPO_DIR}/configs/sddm/autologin.conf" /etc/sddm.conf.d/autologin.conf
-fi
-# Copy main SDDM config if it doesn't exist
-if [ ! -f /etc/sddm.conf ]; then
-  sudo cp -f "${REPO_DIR}/configs/sddm/sddm.conf" /etc/sddm.conf
+  cat <<EOF | sudo tee /etc/sddm.conf.d/autologin.conf > /dev/null
+[Autologin]
+User=
+Session=hyprland
+
+[Theme]
+Current=breeze
+EOF
 fi
 
 echo "[40] Configurations deployed."
