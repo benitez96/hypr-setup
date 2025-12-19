@@ -15,6 +15,7 @@ sudo pacman -Sy --needed --noconfirm \
   papirus-icon-theme adw-gtk-theme \
   cliphist playerctl jq \
   flatpak \
+  greetd greetd-tuigreet \
   pipewire pipewire-pulse pipewire-alsa pipewire-jack wireplumber \
   pavucontrol \
   bluez bluez-utils blueman

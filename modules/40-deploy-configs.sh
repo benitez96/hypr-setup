@@ -79,4 +79,9 @@ cp -f "${REPO_DIR}/configs/bin/battery-monitor" "${HOME}/.local/bin/battery-moni
 cp -f "${REPO_DIR}/configs/bin/lock-screen" "${HOME}/.local/bin/lock-screen"
 chmod +x "${HOME}/.local/bin/"{check-updates,system-update,launch-wifi,launch-bluetooth,launch-webapp,webapp-install,launch-or-focus-tui,battery-remaining,battery-monitor,lock-screen}
 
+# greetd (requires sudo)
+echo "[40] Configuring greetd (requires sudo)..."
+sudo mkdir -p /etc/greetd
+sudo cp -f "${REPO_DIR}/configs/greetd/config.toml" /etc/greetd/config.toml
+
 echo "[40] Configurations deployed."

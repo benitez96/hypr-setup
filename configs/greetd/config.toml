@@ -15,3 +15,4 @@ command = "tuigreet \
   --theme 'background=black;border=cyan;prompt=blue;time=bright-black;action=magenta;text=white' \
   --cmd Hyprland"
 user = "greeter"
+
