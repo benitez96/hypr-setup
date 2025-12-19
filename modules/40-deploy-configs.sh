@@ -42,7 +42,7 @@ cp -f "${REPO_DIR}/configs/bin/menu-windows"     "${HOME}/.local/bin/menu-window
 cp -f "${REPO_DIR}/configs/bin/menu-clipboard"   "${HOME}/.local/bin/menu-clipboard"
 cp -f "${REPO_DIR}/configs/bin/menu-utilities"   "${HOME}/.local/bin/menu-utilities"
 
-chmod +x "${HOME}/.local/bin/"{screenshot,menu-main,menu-screenshots,menu-system,menu-windows,menu-clipboard,menu-utilities}
+chmod +x "${HOME}/.local/bin/"{menu-main,menu-screenshots,menu-system,menu-windows,menu-clipboard,menu-utilities}
 
 # Scripts binarios (screenshot y PDF helpers)
 mkdir -p "${HOME}/.local/bin"
