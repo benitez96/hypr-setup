@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Script to launch Bluetooth manager using bluetuith
+
+rfkill unblock bluetooth
+exec bluetuith

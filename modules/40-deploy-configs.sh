@@ -3,12 +3,19 @@ set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-echo "[40] Deploy de configuraciones a ~/.config y ~/.local/bin..."
+echo "[40] Deploying configurations to ~/.config and ~/.local/bin..."
 
 # Hyprland
 mkdir -p "${HOME}/.config/hypr"
 cp -f "${REPO_DIR}/configs/hypr/hyprland.conf" "${HOME}/.config/hypr/hyprland.conf"
 cp -f "${REPO_DIR}/configs/hypr/hyprpaper.conf" "${HOME}/.config/hypr/hyprpaper.conf"
+cp -f "${REPO_DIR}/configs/hypr/autostart.conf" "${HOME}/.config/hypr/autostart.conf"
+cp -f "${REPO_DIR}/configs/hypr/input.conf" "${HOME}/.config/hypr/input.conf"
+cp -f "${REPO_DIR}/configs/hypr/looknfeel.conf" "${HOME}/.config/hypr/looknfeel.conf"
+cp -f "${REPO_DIR}/configs/hypr/bindings.conf" "${HOME}/.config/hypr/bindings.conf"
+cp -f "${REPO_DIR}/configs/hypr/monitors.conf" "${HOME}/.config/hypr/monitors.conf"
+cp -f "${REPO_DIR}/configs/hypr/hyprlock.conf" "${HOME}/.config/hypr/hyprlock.conf"
+cp -f "${REPO_DIR}/configs/hypr/hypridle.conf" "${HOME}/.config/hypr/hypridle.conf"
 
 # Wallpapers
 mkdir -p "${HOME}/Pictures/Wallpapers"
@@ -18,10 +25,14 @@ fi
 
 # Waybar
 mkdir -p "${HOME}/.config/waybar"
+mkdir -p "${HOME}/.config/waybar/scripts"
 cp -f "${REPO_DIR}/configs/waybar/config.jsonc" "${HOME}/.config/waybar/config.jsonc"
 cp -f "${REPO_DIR}/configs/waybar/style.css" "${HOME}/.config/waybar/style.css"
+cp -f "${REPO_DIR}/configs/waybar/style-light.css" "${HOME}/.config/waybar/style-light.css"
 cp -f "${REPO_DIR}/configs/waybar/toggle-theme.sh" "${HOME}/.config/waybar/toggle-theme.sh"
+cp -f "${REPO_DIR}/configs/waybar/scripts/check-updates.sh" "${HOME}/.config/waybar/scripts/check-updates.sh"
 chmod +x "${HOME}/.config/waybar/toggle-theme.sh"
+chmod +x "${HOME}/.config/waybar/scripts/check-updates.sh"
 
 # Mako
 mkdir -p "${HOME}/.config/mako"
@@ -33,7 +44,7 @@ mkdir -p "${HOME}/.config/wofi"
 cp -f "${REPO_DIR}/configs/wofi/config"    "${HOME}/.config/wofi/config"
 cp -f "${REPO_DIR}/configs/wofi/style.css" "${HOME}/.config/wofi/style.css"
 
-# Scripts en ~/.local/bin
+# Scripts in ~/.local/bin
 mkdir -p "${HOME}/.local/bin"
 cp -f "${REPO_DIR}/configs/bin/menu-main"        "${HOME}/.local/bin/menu-main"
 cp -f "${REPO_DIR}/configs/bin/menu-screenshots" "${HOME}/.local/bin/menu-screenshots"
@@ -44,7 +55,7 @@ cp -f "${REPO_DIR}/configs/bin/menu-utilities"   "${HOME}/.local/bin/menu-utilit
 
 chmod +x "${HOME}/.local/bin/"{menu-main,menu-screenshots,menu-system,menu-windows,menu-clipboard,menu-utilities}
 
-# Scripts binarios (screenshot y PDF helpers)
+# Binary scripts (screenshot and PDF helpers)
 mkdir -p "${HOME}/.local/bin"
 cp -f "${REPO_DIR}/configs/bin/screenshot" "${HOME}/.local/bin/screenshot"
 cp -f "${REPO_DIR}/configs/bin/pdfcompress-low" "${HOME}/.local/bin/pdfcompress-low"
@@ -55,16 +66,17 @@ chmod +x "${HOME}/.local/bin/pdfcompress-low"
 chmod +x "${HOME}/.local/bin/pdfcompress-medium"
 chmod +x "${HOME}/.local/bin/pdfmerge"
 
-# greetd (requiere sudo)
-echo "[40] Configurando greetd (requiere sudo)..."
-sudo mkdir -p /etc/greetd
-sudo cp -f "${REPO_DIR}/configs/greetd/config.toml" /etc/greetd/config.toml
+# System scripts (updates, wifi, bluetooth, webapp, battery)
+cp -f "${REPO_DIR}/configs/bin/check-updates" "${HOME}/.local/bin/check-updates"
+cp -f "${REPO_DIR}/configs/bin/system-update" "${HOME}/.local/bin/system-update"
+cp -f "${REPO_DIR}/configs/bin/launch-wifi" "${HOME}/.local/bin/launch-wifi"
+cp -f "${REPO_DIR}/configs/bin/launch-bluetooth" "${HOME}/.local/bin/launch-bluetooth"
+cp -f "${REPO_DIR}/configs/bin/launch-webapp" "${HOME}/.local/bin/launch-webapp"
+cp -f "${REPO_DIR}/configs/bin/webapp-install" "${HOME}/.local/bin/webapp-install"
+cp -f "${REPO_DIR}/configs/bin/launch-or-focus-tui" "${HOME}/.local/bin/launch-or-focus-tui"
+cp -f "${REPO_DIR}/configs/bin/battery-remaining" "${HOME}/.local/bin/battery-remaining"
+cp -f "${REPO_DIR}/configs/bin/battery-monitor" "${HOME}/.local/bin/battery-monitor"
+cp -f "${REPO_DIR}/configs/bin/lock-screen" "${HOME}/.local/bin/lock-screen"
+chmod +x "${HOME}/.local/bin/"{check-updates,system-update,launch-wifi,launch-bluetooth,launch-webapp,webapp-install,launch-or-focus-tui,battery-remaining,battery-monitor,lock-screen}
 
-echo "[40] Clonando tema Catppuccin para Waybar..."
-if [ ! -d "${HOME}/.config/waybar/catppuccin" ]; then
-  git clone https://github.com/catppuccin/waybar "${HOME}/.config/waybar/catppuccin"
-else
-  git -C "${HOME}/.config/waybar/catppuccin" pull --ff-only || true
-fi
-
-echo "[40] Configuraciones desplegadas."
+echo "[40] Configurations deployed."

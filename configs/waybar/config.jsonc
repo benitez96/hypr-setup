@@ -1,40 +1,128 @@
 {
+  "reload_style_on_change": true,
   "layer": "top",
   "position": "top",
-  "height": 34,
+  "spacing": 0,
+  "height": 26,
   "modules-left": ["hyprland/workspaces"],
-  "modules-center": ["clock"],
-  "modules-right": ["network", "pulseaudio", "battery", "custom/apps", "custom/theme", "custom/power"],
-
-  "custom/theme": {
-    "format": "",
-    "on-click": "~/.config/waybar/toggle-theme.sh"
+  "modules-center": ["clock", "custom/update"],
+  "modules-right": [
+    "group/tray-expander",
+    "bluetooth",
+    "network",
+    "pulseaudio",
+    "cpu",
+    "battery"
+  ],
+  "hyprland/workspaces": {
+    "on-click": "activate",
+    "format": "{icon}",
+    "format-icons": {
+      "default": "",
+      "1": "1",
+      "2": "2",
+      "3": "3",
+      "4": "4",
+      "5": "5",
+      "6": "6",
+      "7": "7",
+      "8": "8",
+      "9": "9",
+      "10": "0",
+      "active": "󱓻"
+    },
+    "persistent-workspaces": {
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [],
+      "5": []
+    }
+  },
+  "custom/update": {
+    "format": "{}",
+    "exec": "~/.config/waybar/scripts/check-updates.sh",
+    "return-type": "json",
+    "on-click": "ghostty --class=floating_terminal -e bash -c 'system-update; read -n 1'",
+    "signal": 7,
+    "interval": 3600
   },
 
-  "network": {
-    "format": "{ssid}",
-    "format-disconnected": "Offline",
-    "on-click": "networkmanager_dmenu"
+  "cpu": {
+    "interval": 5,
+    "format": "󰍛",
+    "on-click": "launch-or-focus-tui btop",
+    "on-click-right": "ghostty"
   },
-
-  "pulseaudio": {
-    "format": "{volume}% ",
-    "format-muted": "Muted "
-  },
-
-  "custom/power": {
-    "format": "",
-    "tooltip": false,
-    "on-click": "~/.local/bin/menu-system"
-  },
-
-"custom/apps": {
-  "format": "",
-  "tooltip": false,
-  "on-click": "wofi --show drun"
-},
-
   "clock": {
-    "format": "{:%Y-%m-%d %H:%M}"
+    "format": "{:L%A %H:%M}",
+    "format-alt": "{:L%d %B W%V %Y}",
+    "tooltip": false
+  },
+  "network": {
+    "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
+    "format": "{icon}",
+    "format-wifi": "{icon}",
+    "format-ethernet": "󰀂",
+    "format-disconnected": "󰤮",
+    "tooltip-format-wifi": "{essid} ({frequency} GHz)\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
+    "tooltip-format-ethernet": "⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
+    "tooltip-format-disconnected": "Disconnected",
+    "interval": 3,
+    "spacing": 1,
+    "on-click": "launch-wifi"
+  },
+  "battery": {
+    "format": "{capacity}% {icon}",
+    "format-discharging": "{capacity}% {icon}",
+    "format-charging": "{capacity}% {icon}",
+    "format-plugged": "󰂅 {capacity}%",
+    "format-icons": {
+      "charging": ["󰢜", "󰂆", "󰂇", "󰂈", "󰢝", "󰂉", "󰢞", "󰂊", "󰂋", "󰂅"],
+      "default": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
+    },
+    "format-full": "󰂅 {capacity}%",
+    "tooltip-format-discharging": "{power:>1.0f}W↓ {capacity}%",
+    "tooltip-format-charging": "{power:>1.0f}W↑ {capacity}%",
+    "tooltip-format-full": "Full {capacity}%",
+    "interval": 5,
+    "states": {
+      "warning": 20,
+      "critical": 10
+    }
+  },
+  "bluetooth": {
+    "format": "",
+    "format-disabled": "󰂲",
+    "format-connected": "󰂱",
+    "format-no-controller": "",
+    "tooltip-format": "Devices connected: {num_connections}",
+    "on-click": "launch-bluetooth"
+  },
+  "pulseaudio": {
+    "format": "{icon}",
+    "on-click-right": "pamixer -t",
+    "tooltip-format": "Volume: {volume}%",
+    "scroll-step": 5,
+    "format-muted": "󰝟",
+    "format-icons": {
+      "default": ["󰕿", "󰖀", "󰕾"]
+    }
+  },
+  "group/tray-expander": {
+    "orientation": "inherit",
+    "drawer": {
+      "transition-duration": 600,
+      "children-class": "tray-group-item"
+    },
+    "modules": ["custom/expand-icon", "tray"]
+  },
+  "custom/expand-icon": {
+    "format": "",
+    "tooltip": false
+  },
+  "tray": {
+    "icon-size": 12,
+    "spacing": 17
   }
 }

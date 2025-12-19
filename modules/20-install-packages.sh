@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "[20] Instalando paquetes oficiales con pacman..."
+echo "[20] Installing official packages with pacman..."
 
 sudo pacman -Sy --needed --noconfirm \
   hyprland hyprpaper hypridle hyprlock \
@@ -15,15 +15,16 @@ sudo pacman -Sy --needed --noconfirm \
   papirus-icon-theme adw-gtk-theme \
   cliphist playerctl jq \
   flatpak \
-  greetd greetd-tuigreet \
   pipewire pipewire-pulse pipewire-alsa pipewire-jack wireplumber \
   pavucontrol \
   bluez bluez-utils blueman
 
-echo "[20] Instalando paquetes desde AUR con yay..."
+echo "[20] Installing packages from AUR with yay..."
 
 yay -S --needed --noconfirm \
   ghostty \
   ttf-jetbrains-mono-nerd \
   lazygit \
-  lazydocker
+  lazydocker \
+  impala \
+  bluetuith

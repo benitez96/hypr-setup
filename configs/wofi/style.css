@@ -1,5 +1,5 @@
 /* ~/.config/wofi/style.css */
-/* Catppuccin Mocha-ish theme */
+/* Catppuccin Mocha (Dark) theme */
 
 * {
   font-family: "JetBrainsMono Nerd Font", monospace;
@@ -58,8 +58,10 @@ window {
   margin-left: 6px;
 }
 
-/* Iconos */
+/* Iconos - asegurar que se muestren correctamente */
 #img {
   margin-left: 4px;
   margin-right: 4px;
+  min-width: 24px;
+  min-height: 24px;
 }

@@ -9,7 +9,7 @@ choice="$(printf '%s\n' \
 
 case "$choice" in
   'Lock')
-    hyprlock &
+    lock-screen
     ;;
   'Log out')
     hyprctl dispatch exit 0
@@ -17,7 +17,7 @@ case "$choice" in
   'Reboot')
     systemctl reboot
     ;;
-  'Poweroff')
+  'Power off')
     systemctl poweroff
     ;;
   *)

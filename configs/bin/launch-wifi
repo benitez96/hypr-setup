@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Script to launch WiFi manager using impala
+
+rfkill unblock wifi
+exec impala

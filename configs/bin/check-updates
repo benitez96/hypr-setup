@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Script to check if system updates are available
+
+pacman_updates=$(pacman -Qu 2>/dev/null | wc -l)
+aur_updates=0
+flatpak_updates=0
+
+# Check AUR updates if yay is available
+if command -v yay &> /dev/null; then
+    aur_updates=$(yay -Qua 2>/dev/null | wc -l)
+fi
+
+# Check flatpak updates if flatpak is available
+if command -v flatpak &> /dev/null; then
+    flatpak_updates=$(flatpak remote-ls --updates 2>/dev/null | wc -l)
+fi
+
+total_updates=$((pacman_updates + aur_updates + flatpak_updates))
+
+if [ "$total_updates" -eq 0 ]; then
+    # No updates available
+    exit 1
+else
+    # Updates available
+    echo "Updates available: $total_updates (pacman: $pacman_updates, AUR: $aur_updates, flatpak: $flatpak_updates)"
+    exit 0
+fi
+
