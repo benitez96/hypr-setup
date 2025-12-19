@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+choice="$(printf '%s\n' \
+  'Screenshots' \
+  'System' \
+  'Windows' \
+  'Clipboard' \
+  'Utilities' \
+  | wofi --show dmenu --prompt 'Menu: ')"
+
+case "$choice" in
+  'Screenshots')
+    ~/.local/bin/menu-screenshots
+    ;;
+  'System')
+    ~/.local/bin/menu-system
+    ;;
+  'Windows')
+    ~/.local/bin/menu-windows
+    ;;
+  'Clipboard')
+    ~/.local/bin/menu-clipboard
+    ;;
+  'Utilities')
+    ~/.local/bin/menu-utilities
+    ;;
+  *)
+    exit 0
+    ;;
+esac

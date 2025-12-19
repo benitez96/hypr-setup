@@ -4,7 +4,7 @@
   "height": 34,
   "modules-left": ["hyprland/workspaces"],
   "modules-center": ["clock"],
-  "modules-right": ["network", "pulseaudio", "battery", "custom/theme"],
+  "modules-right": ["network", "pulseaudio", "battery", "custom/apps", "custom/theme", "custom/power"],
 
   "custom/theme": {
     "format": "",
@@ -21,6 +21,18 @@
     "format": "{volume}% ",
     "format-muted": "Muted "
   },
+
+  "custom/power": {
+    "format": "",
+    "tooltip": false,
+    "on-click": "~/.local/bin/menu-system"
+  },
+
+"custom/apps": {
+  "format": "",
+  "tooltip": false,
+  "on-click": "wofi --show drun"
+},
 
   "clock": {
     "format": "{:%Y-%m-%d %H:%M}"

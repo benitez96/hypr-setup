@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+choice="$(printf '%s\n' \
+  'System info (fastfetch)' \
+  'Resource monitor (btop)' \
+  'Git TUI (lazygit)' \
+  'Docker TUI (lazydocker)' \
+  'Audio settings (pavucontrol)' \
+  | wofi --show dmenu --prompt 'Utilities: ')"
+
+case "$choice" in
+  'System info (fastfetch)')
+    ghostty -e fastfetch &
+    ;;
+  'Resource monitor (btop)')
+    ghostty -e btop &
+    ;;
+  'Git TUI (lazygit)')
+    ghostty -e lazygit &
+    ;;
+  'Docker TUI (lazydocker)')
+    ghostty -e lazydocker &
+    ;;
+  'Audio settings (pavucontrol)')
+    pavucontrol &
+    ;;
+  *)
+    exit 0
+    ;;
+esac

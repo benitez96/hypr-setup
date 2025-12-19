@@ -1,0 +1,65 @@
+/* ~/.config/wofi/style.css */
+/* Catppuccin Mocha-ish theme */
+
+* {
+  font-family: "JetBrainsMono Nerd Font", monospace;
+  font-size: 12pt;
+}
+
+/* Fondo general de wofi */
+window {
+  margin: 0px;
+  border: 2px solid #89b4fa;   /* blue */
+  background-color: #1e1e2e;   /* base */
+  border-radius: 12px;
+}
+
+/* Contenedor externo */
+#outer-box {
+  margin: 8px;
+  padding: 8px;
+}
+
+/* Input */
+#input {
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+  color: #cdd6f4;              /* text */
+  background-color: #11111b;   /* crust */
+}
+
+#input:focus {
+  box-shadow: 0 0 0 2px #89b4fa;
+}
+
+/* Contenedor interno (lista) */
+#inner-box {
+  padding: 4px 0;
+}
+
+/* Cada entrada */
+#entry {
+  padding: 4px 8px;
+  margin: 2px 0;
+  border-radius: 6px;
+  color: #cdd6f4;              /* text */
+  background-color: transparent;
+}
+
+#entry:selected {
+  background-color: #89b4fa;   /* blue */
+  color: #1e1e2e;              /* base */
+}
+
+/* Texto de la entrada */
+#text {
+  margin-left: 6px;
+}
+
+/* Iconos */
+#img {
+  margin-left: 4px;
+  margin-right: 4px;
+}

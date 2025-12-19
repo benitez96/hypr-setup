@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+choice="$(printf '%s\n' \
+  'Area (editable)' \
+  'Full screen' \
+  'Open screenshots folder' \
+  | wofi --show dmenu --prompt 'Screenshots: ')"
+
+DIR="$HOME/Pictures/Screenshots"
+
+case "$choice" in
+  'Area (editable)')
+    ~/.local/bin/screenshot area
+    ;;
+  'Full screen')
+    ~/.local/bin/screenshot full
+    ;;
+  'Open screenshots folder')
+    mkdir -p "$DIR"
+    thunar "$DIR" &
+    ;;
+  *)
+    exit 0
+    ;;
+esac

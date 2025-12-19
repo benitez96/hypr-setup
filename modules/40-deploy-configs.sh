@@ -27,6 +27,23 @@ chmod +x "${HOME}/.config/waybar/toggle-theme.sh"
 mkdir -p "${HOME}/.config/mako"
 cp -f "${REPO_DIR}/configs/mako/config" "${HOME}/.config/mako/config"
 
+
+# Wofi
+mkdir -p "${HOME}/.config/wofi"
+cp -f "${REPO_DIR}/configs/wofi/config"    "${HOME}/.config/wofi/config"
+cp -f "${REPO_DIR}/configs/wofi/style.css" "${HOME}/.config/wofi/style.css"
+
+# Scripts en ~/.local/bin
+mkdir -p "${HOME}/.local/bin"
+cp -f "${REPO_DIR}/configs/bin/menu-main"        "${HOME}/.local/bin/menu-main"
+cp -f "${REPO_DIR}/configs/bin/menu-screenshots" "${HOME}/.local/bin/menu-screenshots"
+cp -f "${REPO_DIR}/configs/bin/menu-system"      "${HOME}/.local/bin/menu-system"
+cp -f "${REPO_DIR}/configs/bin/menu-windows"     "${HOME}/.local/bin/menu-windows"
+cp -f "${REPO_DIR}/configs/bin/menu-clipboard"   "${HOME}/.local/bin/menu-clipboard"
+cp -f "${REPO_DIR}/configs/bin/menu-utilities"   "${HOME}/.local/bin/menu-utilities"
+
+chmod +x "${HOME}/.local/bin/"{screenshot,menu-main,menu-screenshots,menu-system,menu-windows,menu-clipboard,menu-utilities}
+
 # Scripts binarios (screenshot y PDF helpers)
 mkdir -p "${HOME}/.local/bin"
 cp -f "${REPO_DIR}/configs/bin/screenshot" "${HOME}/.local/bin/screenshot"
