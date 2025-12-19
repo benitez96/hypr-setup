@@ -1,42 +1,8 @@
-/* Catppuccin Waybar Theme - Mocha (Dark) por defecto */
-
-/* Variables de color Catppuccin Mocha */
-* {
-  /* Colores base */
-  --ctp-base: #1e1e2e;
-  --ctp-mantle: #181825;
-  --ctp-crust: #11111b;
-  
-  /* Colores de superficie */
-  --ctp-surface0: #313244;
-  --ctp-surface1: #45475a;
-  --ctp-surface2: #585b70;
-  
-  /* Colores de texto */
-  --ctp-text: #cdd6f4;
-  --ctp-subtext1: #bac2de;
-  --ctp-subtext0: #a6adc8;
-  
-  /* Colores de acento */
-  --ctp-blue: #89b4fa;
-  --ctp-lavender: #b4befe;
-  --ctp-sapphire: #74c7ec;
-  --ctp-sky: #89dceb;
-  --ctp-teal: #94e2d5;
-  --ctp-green: #a6e3a1;
-  --ctp-yellow: #f9e2af;
-  --ctp-peach: #fab387;
-  --ctp-maroon: #eba0ac;
-  --ctp-red: #f38ba8;
-  --ctp-pink: #f5c2e7;
-  --ctp-mauve: #cba6f7;
-  --ctp-flamingo: #f2cdcd;
-  --ctp-rosewater: #f5e0dc;
-}
+/* Catppuccin Waybar Theme - Mocha (Dark) */
 
 * {
-  background-color: var(--ctp-base);
-  color: var(--ctp-text);
+  background-color: #1e1e2e;
+  color: #cdd6f4;
   border: none;
   border-radius: 0;
   min-height: 0;
@@ -57,16 +23,16 @@
   padding: 0 6px;
   margin: 0 1.5px;
   min-width: 9px;
-  color: var(--ctp-subtext0);
+  color: #a6adc8;
   transition: color 0.2s;
 }
 
 #workspaces button:hover {
-  color: var(--ctp-text);
+  color: #cdd6f4;
 }
 
 #workspaces button.active {
-  color: var(--ctp-blue);
+  color: #89b4fa;
 }
 
 #workspaces button.empty {
@@ -81,7 +47,7 @@
 #bluetooth {
   min-width: 12px;
   margin: 0 7.5px;
-  color: var(--ctp-text);
+  color: #cdd6f4;
 }
 
 #tray {
@@ -102,24 +68,24 @@
 
 tooltip {
   padding: 8px;
-  background-color: var(--ctp-crust);
-  color: var(--ctp-text);
-  border: 1px solid var(--ctp-surface0);
+  background-color: #11111b;
+  color: #cdd6f4;
+  border: 1px solid #313244;
   border-radius: 6px;
 }
 
 #custom-update {
   font-size: 10px;
-  color: var(--ctp-yellow);
+  color: #f9e2af;
 }
 
 #custom-update:hover {
-  color: var(--ctp-peach);
+  color: #fab387;
 }
 
 #clock {
   margin-left: 8.75px;
-  color: var(--ctp-lavender);
+  color: #b4befe;
 }
 
 .hidden {
@@ -128,36 +94,36 @@ tooltip {
 
 /* Estados de batería */
 #battery.warning {
-  color: var(--ctp-yellow);
+  color: #f9e2af;
 }
 
 #battery.critical {
-  color: var(--ctp-red);
+  color: #f38ba8;
 }
 
 #battery.charging {
-  color: var(--ctp-green);
+  color: #a6e3a1;
 }
 
 /* Estado de red */
 #network.disconnected {
-  color: var(--ctp-red);
+  color: #f38ba8;
 }
 
 #network.ethernet {
-  color: var(--ctp-blue);
+  color: #89b4fa;
 }
 
 /* Estado de bluetooth */
 #bluetooth.connected {
-  color: var(--ctp-blue);
+  color: #89b4fa;
 }
 
 #bluetooth.disabled {
-  color: var(--ctp-surface2);
+  color: #585b70;
 }
 
 /* Pulseaudio */
 #pulseaudio.muted {
-  color: var(--ctp-red);
+  color: #f38ba8;
 }
