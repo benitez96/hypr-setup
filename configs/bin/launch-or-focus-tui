@@ -6,14 +6,12 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-APP_ID="org.hypr.$(basename $1)"
-LAUNCH_COMMAND="ghostty --class=floating_terminal -e $1 ${@:2}"
-
-WINDOW_ADDRESS=$(hyprctl clients -j | jq -r --arg p "$1" '.[]|select((.class|test("\\b" + $p + "\\b";"i")) or (.title|test("\\b" + $p + "\\b";"i")))|.address' | head -n1)
+APP_NAME=$(basename "$1")
+WINDOW_ADDRESS=$(hyprctl clients -j | jq -r --arg p "$APP_NAME" '.[]|select((.class|test("\\b" + $p + "\\b";"i")) or (.title|test("\\b" + $p + "\\b";"i")))|.address' | head -n1)
 
 if [[ -n $WINDOW_ADDRESS ]]; then
     hyprctl dispatch focuswindow "address:$WINDOW_ADDRESS"
 else
-    eval exec setsid $LAUNCH_COMMAND
+    exec setsid ghostty --class=floating_terminal -e "$1" "${@:2}"
 fi
 

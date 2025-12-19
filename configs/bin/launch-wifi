@@ -2,4 +2,4 @@
 # Script to launch WiFi manager using impala
 
 rfkill unblock wifi
-exec impala
+launch-or-focus-tui impala

@@ -1,22 +1,18 @@
 #!/usr/bin/env bash
 # Script to install a web app
 
+# If called without arguments, launch in terminal
 if [ "$#" -lt 3 ]; then
-    echo "Let's create a new web app you can start with the app launcher."
-    APP_NAME=$(gum input --prompt "Name> " --placeholder "My favorite web app" 2>/dev/null || read -p "Name> " APP_NAME && echo "$APP_NAME")
-    APP_URL=$(gum input --prompt "URL> " --placeholder "https://example.com" 2>/dev/null || read -p "URL> " APP_URL && echo "$APP_URL")
-    ICON_REF=$(gum input --prompt "Icon URL> " --placeholder "See https://dashboardicons.com (must use PNG!)" 2>/dev/null || read -p "Icon URL> " ICON_REF && echo "$ICON_REF")
-    CUSTOM_EXEC=""
-    MIME_TYPES=""
-    INTERACTIVE_MODE=true
-else
-    APP_NAME="$1"
-    APP_URL="$2"
-    ICON_REF="$3"
-    CUSTOM_EXEC="$4" # Optional custom exec command
-    MIME_TYPES="$5"  # Optional mime types
-    INTERACTIVE_MODE=false
+    ghostty --class=floating_terminal -e bash -c 'webapp-install-interactive; read -n 1'
+    exit 0
 fi
+
+# Non-interactive mode
+APP_NAME="$1"
+APP_URL="$2"
+ICON_REF="$3"
+CUSTOM_EXEC="$4"
+MIME_TYPES="$5"
 
 # Ensure valid execution
 if [[ -z "$APP_NAME" || -z "$APP_URL" || -z "$ICON_REF" ]]; then
@@ -69,7 +65,4 @@ fi
 
 chmod +x "$DESKTOP_FILE"
 
-if [[ $INTERACTIVE_MODE == true ]]; then
-    echo "You can now find $APP_NAME using the app launcher (SUPER + SPACE)"
-fi
-
+echo "You can now find $APP_NAME using the app launcher (SUPER + SPACE)"

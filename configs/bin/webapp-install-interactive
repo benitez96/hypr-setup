@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Interactive webapp install (called from webapp-install)
+
+echo "Let's create a new web app you can start with the app launcher."
+
+APP_NAME=$(gum input --prompt "Name> " --placeholder "My favorite web app" 2>/dev/null || read -p "Name> " APP_NAME && echo "$APP_NAME")
+APP_URL=$(gum input --prompt "URL> " --placeholder "https://example.com" 2>/dev/null || read -p "URL> " APP_URL && echo "$APP_URL")
+ICON_REF=$(gum input --prompt "Icon URL> " --placeholder "See https://dashboardicons.com (must use PNG!)" 2>/dev/null || read -p "Icon URL> " ICON_REF && echo "$ICON_REF")
+
+if [[ -z "$APP_NAME" || -z "$APP_URL" || -z "$ICON_REF" ]]; then
+    echo "You must set app name, app URL, and icon URL!"
+    exit 1
+fi
+
+# Call webapp-install with arguments
+webapp-install "$APP_NAME" "$APP_URL" "$ICON_REF"
+

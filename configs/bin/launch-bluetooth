@@ -2,4 +2,4 @@
 # Script to launch Bluetooth manager using bluetuith
 
 rfkill unblock bluetooth
-exec bluetuith
+launch-or-focus-tui bluetuith

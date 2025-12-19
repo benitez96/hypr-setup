@@ -3,17 +3,19 @@
 
 set -e
 
-# Confirm update
-if ! command -v gum &> /dev/null; then
-    # If no gum, use simple prompt
-    read -p "Update system? (y/N): " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        exit 0
-    fi
-else
-    if ! gum confirm "Update system?"; then
-        exit 0
+# Confirm update (only if running interactively)
+if [ -t 0 ]; then
+    if ! command -v gum &> /dev/null; then
+        # If no gum, use simple prompt
+        read -p "Update system? (y/N): " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            exit 0
+        fi
+    else
+        if ! gum confirm "Update system?"; then
+            exit 0
+        fi
     fi
 fi
 
@@ -37,5 +39,6 @@ if command -v flatpak &> /dev/null; then
     flatpak update -y
 fi
 
+echo ""
 echo "Update completed!"
 

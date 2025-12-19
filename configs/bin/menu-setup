@@ -10,7 +10,7 @@ choice="$(printf '%s\n' \
 
 case "$choice" in
   'Install Web App')
-    webapp-install
+    webapp-install &
     ;;
   'Audio Settings')
     pavucontrol &
@@ -22,7 +22,7 @@ case "$choice" in
     launch-bluetooth
     ;;
   'Update System')
-    ghostty --class=floating_terminal -e bash -c 'system-update; read -n 1'
+    ghostty --class=floating_terminal -e bash -c 'system-update; echo ""; echo "Press any key to close..."; read -n 1'
     ;;
   *)
     exit 0

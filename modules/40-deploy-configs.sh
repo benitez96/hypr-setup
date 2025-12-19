@@ -75,17 +75,22 @@ cp -f "${REPO_DIR}/configs/bin/launch-wifi" "${HOME}/.local/bin/launch-wifi"
 cp -f "${REPO_DIR}/configs/bin/launch-bluetooth" "${HOME}/.local/bin/launch-bluetooth"
 cp -f "${REPO_DIR}/configs/bin/launch-webapp" "${HOME}/.local/bin/launch-webapp"
 cp -f "${REPO_DIR}/configs/bin/webapp-install" "${HOME}/.local/bin/webapp-install"
+cp -f "${REPO_DIR}/configs/bin/webapp-install-interactive" "${HOME}/.local/bin/webapp-install-interactive"
 cp -f "${REPO_DIR}/configs/bin/launch-or-focus-tui" "${HOME}/.local/bin/launch-or-focus-tui"
 cp -f "${REPO_DIR}/configs/bin/battery-remaining" "${HOME}/.local/bin/battery-remaining"
 cp -f "${REPO_DIR}/configs/bin/battery-monitor" "${HOME}/.local/bin/battery-monitor"
 cp -f "${REPO_DIR}/configs/bin/lock-screen" "${HOME}/.local/bin/lock-screen"
-chmod +x "${HOME}/.local/bin/"{check-updates,system-update,launch-wifi,launch-bluetooth,launch-webapp,webapp-install,launch-or-focus-tui,battery-remaining,battery-monitor,lock-screen}
+chmod +x "${HOME}/.local/bin/"{check-updates,system-update,launch-wifi,launch-bluetooth,launch-webapp,webapp-install,webapp-install-interactive,launch-or-focus-tui,battery-remaining,battery-monitor,lock-screen}
 
 # SDDM (requires sudo)
 echo "[40] Configuring SDDM (requires sudo)..."
 sudo mkdir -p /etc/sddm.conf.d
 if [ ! -f /etc/sddm.conf.d/autologin.conf ]; then
   sudo cp -f "${REPO_DIR}/configs/sddm/autologin.conf" /etc/sddm.conf.d/autologin.conf
+fi
+# Copy main SDDM config if it doesn't exist
+if [ ! -f /etc/sddm.conf ]; then
+  sudo cp -f "${REPO_DIR}/configs/sddm/sddm.conf" /etc/sddm.conf
 fi
 
 echo "[40] Configurations deployed."
