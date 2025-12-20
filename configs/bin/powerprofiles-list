@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if command -v powerprofilesctl &>/dev/null; then
+  powerprofilesctl list |
+    awk '/^\s*[* ]\s*[a-zA-Z0-9\-]+:$/ { gsub(/^[*[:space:]]+|:$/,""); print }' |
+    tac
+else
+  echo -e "balanced\nperformance\npower-saver"
+fi
+

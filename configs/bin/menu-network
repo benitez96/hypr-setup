@@ -3,7 +3,7 @@
 choice="$(printf '%s\n' \
   'WiFi' \
   'Bluetooth' \
-  | wofi --show dmenu --prompt 'Network: ')"
+  | walker --dmenu --prompt 'Network: ')"
 
 case "$choice" in
   'WiFi')

@@ -2,18 +2,14 @@
 
 choice="$(printf '%s\n' \
   'Install Web App' \
-  'Audio Settings' \
   'WiFi' \
   'Bluetooth' \
   'Update System' \
-  | wofi --show dmenu --prompt 'Setup: ')"
+  | walker --dmenu --prompt 'Setup: ')"
 
 case "$choice" in
   'Install Web App')
-    webapp-install &
-    ;;
-  'Audio Settings')
-    pavucontrol &
+    ghostty --class=floating_terminal -e bash -c 'webapp-install; echo ""; echo "Press any key to close..."; read -n 1'
     ;;
   'WiFi')
     launch-wifi

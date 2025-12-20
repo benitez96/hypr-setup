@@ -4,7 +4,7 @@ choice="$(printf '%s\n' \
   'Area (editable)' \
   'Full screen' \
   'Open screenshots folder' \
-  | wofi --show dmenu --prompt 'Screenshots: ')"
+  | walker --dmenu --prompt 'Screenshots: ')"
 
 DIR="$HOME/Pictures/Screenshots"
 

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Try to get current font from waybar style
+if [[ -f ~/.config/waybar/style.css ]]; then
+  grep -oP 'font-family:\s*["'\'']?\K[^;"'\'']+' ~/.config/waybar/style.css | head -n1
+elif [[ -f ~/.config/ghostty/config ]]; then
+  grep -oP 'font-family\s*=\s*["'\'']?\K[^"\'\']+' ~/.config/ghostty/config | head -n1
+else
+  echo ""
+fi
+

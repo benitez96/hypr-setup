@@ -6,7 +6,7 @@ choice="$(printf '%s\n' \
   'Focus next' \
   'Focus previous' \
   'Tile all (dwindle)' \
-  | wofi --show dmenu --prompt 'Windows: ')"
+  | walker --dmenu --prompt 'Windows: ')"
 
 case "$choice" in
   'Toggle floating')

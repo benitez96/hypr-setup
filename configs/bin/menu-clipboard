@@ -3,11 +3,11 @@
 choice="$(printf '%s\n' \
   'Pick from history' \
   'Clear history' \
-  | wofi --show dmenu --prompt 'Clipboard: ')"
+  | walker --dmenu --prompt 'Clipboard: ')"
 
 case "$choice" in
   'Pick from history')
-    sel="$(cliphist list | wofi --show dmenu --prompt 'Clipboard history: ')"
+    sel="$(cliphist list | walker --dmenu --prompt 'Clipboard history: ')"
     [ -n "$sel" ] && echo "$sel" | cliphist decode | wl-copy
     ;;
   'Clear history')

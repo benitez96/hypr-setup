@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Restart input method if available
+if command -v fcitx5 &>/dev/null; then
+  if pgrep -x fcitx5 >/dev/null; then
+    pkill -x fcitx5
+    setsid fcitx5 >/dev/null 2>&1 &
+  fi
+elif command -v ibus &>/dev/null; then
+  # Alternative: restart ibus if available
+  ibus restart
+else
+  notify-send "No input method found (fcitx5 or ibus)" -t 2000
+fi
+

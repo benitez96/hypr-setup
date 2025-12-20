@@ -5,8 +5,7 @@ choice="$(printf '%s\n' \
   'Resource monitor (btop)' \
   'Git TUI (lazygit)' \
   'Docker TUI (lazydocker)' \
-  'Audio settings (pavucontrol)' \
-  | wofi --show dmenu --prompt 'Utilities: ')"
+  | walker --dmenu --prompt 'Utilities: ')"
 
 case "$choice" in
   'System info (fastfetch)')
@@ -20,9 +19,6 @@ case "$choice" in
     ;;
   'Docker TUI (lazydocker)')
     ghostty -e lazydocker &
-    ;;
-  'Audio settings (pavucontrol)')
-    pavucontrol &
     ;;
   *)
     exit 0

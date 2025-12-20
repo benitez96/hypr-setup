@@ -6,9 +6,9 @@ echo "[20] Installing official packages with pacman..."
 sudo pacman -Sy --needed --noconfirm \
   hyprland hyprpaper hypridle hyprlock \
   xdg-desktop-portal-hyprland xdg-desktop-portal-gtk \
-  waybar mako wofi \
+  waybar mako \
   networkmanager network-manager-applet networkmanager-dmenu \
-  grim slurp swappy wl-clipboard \
+  grim slurp wl-clipboard \
   thunar thunar-volman tumbler \
   lf \
   zsh starship \
@@ -17,8 +17,10 @@ sudo pacman -Sy --needed --noconfirm \
   flatpak \
   sddm \
   pipewire pipewire-pulse pipewire-alsa pipewire-jack wireplumber \
-  pavucontrol \
-  bluez bluez-utils blueman
+  bluez bluez-utils blueman \
+  swayosd \
+  xournalpp \
+  imv
 
 echo "[20] Installing packages from AUR with yay..."
 
@@ -28,4 +30,6 @@ yay -S --needed --noconfirm \
   lazygit \
   lazydocker \
   impala \
-  bluetuith
+  bluetuith \
+  walker \
+  elephant

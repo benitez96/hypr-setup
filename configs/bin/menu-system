@@ -5,7 +5,7 @@ choice="$(printf '%s\n' \
   'Log out' \
   'Reboot' \
   'Poweroff' \
-  | wofi --show dmenu --prompt 'System: ')"
+  | walker --dmenu --prompt 'System: ')"
 
 case "$choice" in
   'Lock')

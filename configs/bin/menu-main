@@ -9,11 +9,11 @@ choice="$(printf '%s\n' \
   'Utilities' \
   'Network' \
   'Setup' \
-  | wofi --show dmenu --prompt 'Menu: ')"
+  | walker --dmenu --prompt 'Menu: ')"
 
 case "$choice" in
   'Apps')
-    wofi --show drun
+    walker
     ;;
   'Screenshots')
     ~/.local/bin/menu-screenshots

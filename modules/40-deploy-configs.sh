@@ -16,6 +16,7 @@ cp -f "${REPO_DIR}/configs/hypr/bindings.conf" "${HOME}/.config/hypr/bindings.co
 cp -f "${REPO_DIR}/configs/hypr/monitors.conf" "${HOME}/.config/hypr/monitors.conf"
 cp -f "${REPO_DIR}/configs/hypr/hyprlock.conf" "${HOME}/.config/hypr/hyprlock.conf"
 cp -f "${REPO_DIR}/configs/hypr/hypridle.conf" "${HOME}/.config/hypr/hypridle.conf"
+cp -f "${REPO_DIR}/configs/hypr/media.conf" "${HOME}/.config/hypr/media.conf"
 
 # Wallpapers
 mkdir -p "${HOME}/Pictures/Wallpapers"
@@ -38,11 +39,18 @@ chmod +x "${HOME}/.config/waybar/scripts/check-updates.sh"
 mkdir -p "${HOME}/.config/mako"
 cp -f "${REPO_DIR}/configs/mako/config" "${HOME}/.config/mako/config"
 
+# Walker
+mkdir -p "${HOME}/.config/walker"
+cp -f "${REPO_DIR}/configs/walker/config.toml" "${HOME}/.config/walker/config.toml"
 
-# Wofi
-mkdir -p "${HOME}/.config/wofi"
-cp -f "${REPO_DIR}/configs/wofi/config"    "${HOME}/.config/wofi/config"
-cp -f "${REPO_DIR}/configs/wofi/style.css" "${HOME}/.config/wofi/style.css"
+# SwayOSD
+mkdir -p "${HOME}/.config/swayosd"
+cp -f "${REPO_DIR}/configs/swayosd/config.toml" "${HOME}/.config/swayosd/config.toml"
+cp -f "${REPO_DIR}/configs/swayosd/style.css" "${HOME}/.config/swayosd/style.css"
+
+# imv
+mkdir -p "${HOME}/.config/imv"
+cp -f "${REPO_DIR}/configs/imv/config" "${HOME}/.config/imv/config"
 
 # Scripts in ~/.local/bin
 mkdir -p "${HOME}/.local/bin"

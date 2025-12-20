@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Placeholder for FIDO2 setup
+# You'll need to implement this based on your FIDO2 device
+
+if [[ "$1" == "--remove" ]]; then
+  echo "Removing FIDO2 configuration..."
+  # Add removal logic here
+  notify-send "FIDO2 configuration removed"
+else
+  echo "Setting up FIDO2..."
+  # Add setup logic here
+  notify-send "FIDO2 setup not implemented yet"
+fi
+
