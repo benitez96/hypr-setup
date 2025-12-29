@@ -15,7 +15,7 @@ sudo pacman -Sy --needed --noconfirm \
   papirus-icon-theme adw-gtk-theme \
   cliphist playerctl jq \
   flatpak \
-  greetd tuigreet \
+  greetd greetd-regreet cage \
   pipewire pipewire-pulse pipewire-alsa pipewire-jack wireplumber \
   bluez bluez-utils blueman \
   swayosd \
@@ -32,4 +32,6 @@ yay -S --needed --noconfirm \
   impala \
   bluetuith \
   walker-bin \
-  elephant-bin
+  elephant-bin \
+  elephant-providerlist \
+  elephant-desktopapplications
