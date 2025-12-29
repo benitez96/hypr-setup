@@ -3,6 +3,9 @@
 # Menú personalizado basado en omarchy-menu
 # Adaptado para usar walker y comandos locales
 
+# Ensure local bin is in PATH
+export PATH="$HOME/.local/bin:$PATH"
+
 BACK_TO_EXIT=false
 
 back_to() {
@@ -81,19 +84,19 @@ show_screenshot_menu() {
 
 show_share_menu() {
   case $(menu "Share" "📋  Clipboard\n📄  File\n📁  Folder") in
-  *Clipboard*) cmd-share clipboard ;;
-  *File*) terminal bash -c "cmd-share file" ;;
-  *Folder*) terminal bash -c "cmd-share folder" ;;
+  *Clipboard*) ~/.local/bin/cmd-share clipboard ;;
+  *File*) terminal bash -c "~/.local/bin/cmd-share file" ;;
+  *Folder*) terminal bash -c "~/.local/bin/cmd-share folder" ;;
   *) show_trigger_menu ;;
   esac
 }
 
 show_toggle_menu() {
   case $(menu "Toggle" "🎬  Screensaver\n🌙  Nightlight\n🔒  Idle Lock\n📊  Top Bar") in
-  *Screensaver*) toggle-screensaver ;;
-  *Nightlight*) toggle-nightlight ;;
-  *Idle*) toggle-idle ;;
-  *Bar*) toggle-waybar ;;
+  *Screensaver*) ~/.local/bin/toggle-screensaver ;;
+  *Nightlight*) ~/.local/bin/toggle-nightlight ;;
+  *Idle*) ~/.local/bin/toggle-idle ;;
+  *Bar*) ~/.local/bin/toggle-waybar ;;
   *) show_trigger_menu ;;
   esac
 }
@@ -104,7 +107,7 @@ show_style_menu() {
   case $(menu "Style" "🎨  Theme\n🔤  Font\n🖼️   Background\n🪟  Hyprland\n🎬  Screensaver\nℹ️   About") in
   *Theme*) show_theme_menu ;;
   *Font*) show_font_menu ;;
-  *Background*) theme-bg-next ;;
+  *Background*) ~/.local/bin/theme-bg-next ;;
   *Hyprland*) open_in_editor ~/.config/hypr/looknfeel.conf ;;
   *Screensaver*) open_in_editor ~/.config/omarchy/branding/screensaver.txt 2>/dev/null || notify-send "File not found" ;;
   *About*) open_in_editor ~/.config/omarchy/branding/about.txt 2>/dev/null || notify-send "File not found" ;;
@@ -119,12 +122,12 @@ show_theme_menu() {
 
 show_font_menu() {
   # Ajustar según tu sistema de fuentes
-  current_font=$(font-current 2>/dev/null || echo "")
-  font=$(menu "Font" "$(font-list 2>/dev/null || echo 'Font list not available')" "--width 350" "$current_font")
+  current_font=$(~/.local/bin/font-current 2>/dev/null || echo "")
+  font=$(menu "Font" "$(~/.local/bin/font-list 2>/dev/null || echo 'Font list not available')" "--width 350" "$current_font")
   if [[ "$font" == "CNCLD" || -z "$font" ]]; then
     back_to show_style_menu
   else
-    font-set "$font" 2>/dev/null || notify-send "Failed to set font"
+    ~/.local/bin/font-set "$font" 2>/dev/null || notify-send "Failed to set font"
   fi
 }
 
@@ -137,15 +140,15 @@ show_setup_menu() {
   options="$options\n📝  Defaults\n🌐  DNS\n🔒  Security\n⚙️   Config"
 
   case $(menu "Setup" "$options") in
-  *Audio*) launch-or-focus-tui wiremix ;;
-  *Wifi*) launch-wifi ;;
-  *Bluetooth*) launch-bluetooth ;;
+  *Audio*) ~/.local/bin/launch-or-focus-tui wiremix ;;
+  *Wifi*) ~/.local/bin/launch-wifi ;;
+  *Bluetooth*) ~/.local/bin/launch-bluetooth ;;
   *Power*) show_setup_power_menu ;;
   *Monitors*) open_in_editor ~/.config/hypr/monitors.conf ;;
   *Keybindings*) open_in_editor ~/.config/hypr/bindings.conf ;;
   *Input*) open_in_editor ~/.config/hypr/input.conf ;;
   *Defaults*) open_in_editor ~/.config/uwsm/default 2>/dev/null || notify-send "File not found" ;;
-  *DNS*) present_terminal "setup-dns" ;;
+  *DNS*) present_terminal "~/.local/bin/setup-dns" ;;
   *Security*) show_setup_security_menu ;;
   *Config*) show_setup_config_menu ;;
   *) show_main_menu ;;
@@ -153,7 +156,7 @@ show_setup_menu() {
 }
 
 show_setup_power_menu() {
-  profile=$(menu "Power Profile" "$(powerprofiles-list 2>/dev/null || echo -e 'balanced\nperformance\npower-saver')" "" "$(powerprofilesctl get 2>/dev/null || echo 'balanced')")
+  profile=$(menu "Power Profile" "$(~/.local/bin/powerprofiles-list 2>/dev/null || echo -e 'balanced\nperformance\npower-saver')" "" "$(powerprofilesctl get 2>/dev/null || echo 'balanced')")
 
   if [[ "$profile" == "CNCLD" || -z "$profile" ]]; then
     back_to show_setup_menu
@@ -169,21 +172,21 @@ show_setup_config_menu() {
   
   case $(menu "Setup" "$options") in
   *Hyprland*) open_in_editor ~/.config/hypr/hyprland.conf ;;
-  *Hypridle*) open_in_editor ~/.config/hypr/hypridle.conf && restart-hypridle ;;
+  *Hypridle*) open_in_editor ~/.config/hypr/hypridle.conf && ~/.local/bin/restart-hypridle ;;
   *Hyprlock*) open_in_editor ~/.config/hypr/hyprlock.conf ;;
-  *Hyprsunset*) open_in_editor ~/.config/hypr/hyprsunset.conf && restart-hyprsunset ;;
-  *Swayosd*) open_in_editor ~/.config/swayosd/config.toml && restart-swayosd ;;
-  *Walker*) open_in_editor ~/.config/walker/config.toml && restart-walker ;;
-  *Waybar*) open_in_editor ~/.config/waybar/config.jsonc && restart-waybar ;;
-  *XCompose*) [ -f ~/.XCompose ] && open_in_editor ~/.XCompose && restart-xcompose || notify-send "XCompose not configured" ;;
+  *Hyprsunset*) open_in_editor ~/.config/hypr/hyprsunset.conf && ~/.local/bin/restart-hyprsunset ;;
+  *Swayosd*) open_in_editor ~/.config/swayosd/config.toml && ~/.local/bin/restart-swayosd ;;
+  *Walker*) open_in_editor ~/.config/walker/config.toml && ~/.local/bin/restart-walker ;;
+  *Waybar*) open_in_editor ~/.config/waybar/config.jsonc && ~/.local/bin/restart-waybar ;;
+  *XCompose*) [ -f ~/.XCompose ] && open_in_editor ~/.XCompose && ~/.local/bin/restart-xcompose || notify-send "XCompose not configured" ;;
   *) show_main_menu ;;
   esac
 }
 
 show_setup_security_menu() {
   case $(menu "Setup" "👆  Fingerprint\n🔑  Fido2") in
-  *Fingerprint*) present_terminal "setup-fingerprint" ;;
-  *Fido2*) present_terminal "setup-fido2" ;;
+  *Fingerprint*) present_terminal "~/.local/bin/setup-fingerprint" ;;
+  *Fido2*) present_terminal "~/.local/bin/setup-fido2" ;;
   *) show_setup_menu ;;
   esac
 }
@@ -192,10 +195,10 @@ show_setup_security_menu() {
 
 show_install_menu() {
   case $(menu "Install" "📦  Package\n📦  AUR\n🌐  Web App\n💻  TUI") in
-  *Package*) terminal "pkg-install" ;;
-  *AUR*) terminal "pkg-aur-install" ;;
-  *Web*) present_terminal "webapp-install" ;;
-  *TUI*) present_terminal "tui-install" ;;
+  *Package*) terminal "~/.local/bin/pkg-install" ;;
+  *AUR*) terminal "~/.local/bin/pkg-aur-install" ;;
+  *Web*) present_terminal "~/.local/bin/webapp-install" ;;
+  *TUI*) present_terminal "~/.local/bin/tui-install" ;;
   *) show_main_menu ;;
   esac
 }
@@ -204,11 +207,11 @@ show_install_menu() {
 
 show_remove_menu() {
   case $(menu "Remove" "📦  Package\n🌐  Web App\n💻  TUI\n👆  Fingerprint\n🔑  Fido2") in
-  *Package*) terminal "pkg-remove" ;;
-  *Web*) present_terminal "webapp-remove" ;;
-  *TUI*) present_terminal "tui-remove" ;;
-  *Fingerprint*) present_terminal "setup-fingerprint --remove" ;;
-  *Fido2*) present_terminal "setup-fido2 --remove" ;;
+  *Package*) terminal "~/.local/bin/pkg-remove" ;;
+  *Web*) present_terminal "~/.local/bin/webapp-remove" ;;
+  *TUI*) present_terminal "~/.local/bin/tui-remove" ;;
+  *Fingerprint*) present_terminal "~/.local/bin/setup-fingerprint --remove" ;;
+  *Fido2*) present_terminal "~/.local/bin/setup-fido2 --remove" ;;
   *) show_main_menu ;;
   esac
 }
@@ -220,28 +223,28 @@ show_update_menu() {
   *Process*) show_update_process_menu ;;
   *Hardware*) show_update_hardware_menu ;;
   *Password*) show_update_password_menu ;;
-  *Timezone*) present_terminal "tz-select" ;;
-  *Time*) present_terminal "update-time" ;;
+  *Timezone*) present_terminal "~/.local/bin/tz-select" ;;
+  *Time*) present_terminal "~/.local/bin/update-time" ;;
   *) show_main_menu ;;
   esac
 }
 
 show_update_process_menu() {
   case $(menu "Restart" "⏰  Hypridle\n🌅  Hyprsunset\n🔊  Swayosd\n🚶  Walker\n📊  Waybar") in
-  *Hypridle*) restart-hypridle ;;
-  *Hyprsunset*) restart-hyprsunset ;;
-  *Swayosd*) restart-swayosd ;;
-  *Walker*) restart-walker ;;
-  *Waybar*) restart-waybar ;;
+  *Hypridle*) ~/.local/bin/restart-hypridle ;;
+  *Hyprsunset*) ~/.local/bin/restart-hyprsunset ;;
+  *Swayosd*) ~/.local/bin/restart-swayosd ;;
+  *Walker*) ~/.local/bin/restart-walker ;;
+  *Waybar*) ~/.local/bin/restart-waybar ;;
   *) show_update_menu ;;
   esac
 }
 
 show_update_hardware_menu() {
   case $(menu "Restart" "🔊  Audio\n📶  Wi-Fi\n📱  Bluetooth") in
-  *Audio*) present_terminal "restart-pipewire" ;;
-  *Wi-Fi*) present_terminal "restart-wifi" ;;
-  *Bluetooth*) present_terminal "restart-bluetooth" ;;
+  *Audio*) present_terminal "~/.local/bin/restart-pipewire" ;;
+  *Wi-Fi*) present_terminal "~/.local/bin/restart-wifi" ;;
+  *Bluetooth*) present_terminal "~/.local/bin/restart-bluetooth" ;;
   *) show_update_menu ;;
   esac
 }
@@ -257,8 +260,8 @@ show_update_password_menu() {
 
 show_system_menu() {
   case $(menu "System" "🔒  Lock\n🎬  Screensaver\n🔄  Restart\n⏻  Shutdown") in
-  *Lock*) lock-screen ;;
-  *Screensaver*) launch-screensaver force ;;
+  *Lock*) ~/.local/bin/lock-screen ;;
+  *Screensaver*) ~/.local/bin/launch-screensaver force ;;
   *Restart*) systemctl reboot ;;
   *Shutdown*) systemctl poweroff ;;
   *) back_to show_main_menu ;;
@@ -284,7 +287,7 @@ go_to_menu() {
   *install*) show_install_menu ;;
   *remove*) show_remove_menu ;;
   *update*) show_update_menu ;;
-  *about*) launch-or-focus-tui "bash -c 'fastfetch; read -n 1 -s'" ;;
+  *about*) ~/.local/bin/launch-or-focus-tui "bash -c 'fastfetch; read -n 1 -s'" ;;
   *system*) show_system_menu ;;
   esac
 }

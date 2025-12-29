@@ -1,6 +1,9 @@
 export EDITOR="nvim"
 export SUDO_EDITOR="$EDITOR"
 
+# Add local bin to PATH
+export PATH="$HOME/.local/bin:$PATH"
+
 setopt inc_append_history
 HISTFILE=~/.history
 HISTSIZE=10000

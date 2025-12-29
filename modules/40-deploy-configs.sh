@@ -52,6 +52,15 @@ cp -f "${REPO_DIR}/configs/swayosd/style.css" "${HOME}/.config/swayosd/style.css
 mkdir -p "${HOME}/.config/imv"
 cp -f "${REPO_DIR}/configs/imv/config" "${HOME}/.config/imv/config"
 
+# btop
+mkdir -p "${HOME}/.config/btop"
+mkdir -p "${HOME}/.config/btop/themes"
+cp -f "${REPO_DIR}/configs/btop/btop.conf" "${HOME}/.config/btop/btop.conf"
+# Create symlink for current theme if omarchy theme exists
+if [ -d "${HOME}/.config/omarchy/current/theme" ] && [ -f "${HOME}/.config/omarchy/current/theme/btop.theme" ]; then
+  ln -sf "${HOME}/.config/omarchy/current/theme/btop.theme" "${HOME}/.config/btop/themes/current.theme"
+fi
+
 # Scripts in ~/.local/bin
 mkdir -p "${HOME}/.local/bin"
 cp -f "${REPO_DIR}/configs/bin/menu-main"        "${HOME}/.local/bin/menu-main"
@@ -90,18 +99,12 @@ cp -f "${REPO_DIR}/configs/bin/battery-monitor" "${HOME}/.local/bin/battery-moni
 cp -f "${REPO_DIR}/configs/bin/lock-screen" "${HOME}/.local/bin/lock-screen"
 chmod +x "${HOME}/.local/bin/"{check-updates,system-update,launch-wifi,launch-bluetooth,launch-webapp,webapp-install,webapp-install-interactive,launch-or-focus-tui,battery-remaining,battery-monitor,lock-screen}
 
-# SDDM (requires sudo)
-echo "[40] Configuring SDDM (requires sudo)..."
-sudo mkdir -p /etc/sddm.conf.d
-if [ ! -f /etc/sddm.conf.d/autologin.conf ]; then
-  cat <<EOF | sudo tee /etc/sddm.conf.d/autologin.conf > /dev/null
-[Autologin]
-User=
-Session=hyprland
-
-[Theme]
-Current=breeze
-EOF
+# greetd (requires sudo)
+echo "[40] Configuring greetd (requires sudo)..."
+sudo mkdir -p /etc/greetd
+if [ -f "${REPO_DIR}/configs/greetd/config.toml" ]; then
+  # Replace the user placeholder in the config file with the current user
+  sed "s/USER_PLACEHOLDER/$(whoami)/" "${REPO_DIR}/configs/greetd/config.toml" | sudo tee /etc/greetd/config.toml > /dev/null
 fi
 
 echo "[40] Configurations deployed."
