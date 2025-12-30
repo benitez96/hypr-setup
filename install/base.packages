@@ -62,12 +62,11 @@ playerctl
 plocate
 plymouth
 polkit-gnome
-walker-bin
 elephant-bin
 elephant-providerlist
 elephant-desktopapplications
+walker-bin
 power-profiles-daemon
-python-gobject
 qt5-wayland
 ripgrep
 satty
