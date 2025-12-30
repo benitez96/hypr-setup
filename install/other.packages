@@ -1,0 +1,22 @@
+# Packages installed outside of install/packages.sh or optional packages
+# Utilized by ISO builder to ensure package availability in the ISO
+
+base
+base-devel
+btrfs-progs
+egl-wayland
+git
+gst-plugin-pipewire
+gtk4-layer-shell
+iwd
+libpulse
+linux
+linux-firmware
+linux-headers
+pipewire
+pipewire-alsa
+pipewire-jack
+pipewire-pulse
+qt6-wayland
+webp-pixbuf-loader
+wget

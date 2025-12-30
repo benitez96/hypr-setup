@@ -1,6 +1,0 @@
-#!/bin/bash
-
-# Restart walker service
-pkill -f "walker --gapplication-service"
-setsid walker --gapplication-service >/dev/null 2>&1 &
-

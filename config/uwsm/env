@@ -1,0 +1,11 @@
+# Changes require a restart to take effect.
+
+# Ensure Hypr Setup bins are in the path
+export HYPR_SETUP_PATH=${HYPR_SETUP_PATH:-$HOME/.local/share/hypr}
+export PATH=$HYPR_SETUP_PATH/bin:$PATH
+
+# Set default terminal and editor
+source ~/.config/uwsm/default
+
+# Activate mise if present on the system
+omarchy-cmd-present mise && eval "$(mise activate bash)"

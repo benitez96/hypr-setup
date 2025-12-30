@@ -1,0 +1,8 @@
+#!/bin/bash
+
+sudo mkdir -p /usr/share/plymouth/themes/hypr
+sudo cp $HYPR_SETUP_PATH/default/plymouth/* /usr/share/plymouth/themes/hypr/
+sudo plymouth-set-default-theme hypr
+
+# Regenerate initramfs (GRUB compatible)
+sudo mkinitcpio -P

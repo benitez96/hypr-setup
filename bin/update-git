@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -e
+
+echo -e "\e[32mUpdate Omarchy\e[0m"
+
+git -C $HYPR_SETUP_PATH pull --autostash
+git -C $HYPR_SETUP_PATH diff --check || git -C $HYPR_SETUP_PATH reset --merge

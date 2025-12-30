@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Copy and sync icon files
+mkdir -p ~/.local/share/icons/hicolor/48x48/apps/
+cp $HYPR_SETUP_PATH/applications/icons/*.png ~/.local/share/icons/hicolor/48x48/apps/ 2>/dev/null || true
+gtk-update-icon-cache ~/.local/share/icons/hicolor &>/dev/null
+
+# Copy .desktop declarations
+mkdir -p ~/.local/share/applications
+if [ -d "$HYPR_SETUP_PATH/applications" ]; then
+  cp $HYPR_SETUP_PATH/applications/*.desktop ~/.local/share/applications/ 2>/dev/null || true
+fi
+if [ -d "$HYPR_SETUP_PATH/applications/hidden" ]; then
+  cp $HYPR_SETUP_PATH/applications/hidden/*.desktop ~/.local/share/applications/ 2>/dev/null || true
+fi
+
+# Refresh the webapps
+bash $HYPR_SETUP_PATH/install/packaging/icons.sh
+bash $HYPR_SETUP_PATH/install/packaging/webapps.sh
+
+update-desktop-database ~/.local/share/applications

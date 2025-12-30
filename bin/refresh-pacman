@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Use HYPR_SETUP_PATH if available, otherwise default to standard location
+HYPR_SETUP_PATH="${HYPR_SETUP_PATH:-$HOME/.local/share/hypr}"
+
+# Take backup of existing files
+sudo cp -f /etc/pacman.conf /etc/pacman.conf.bak
+
+# Copy pacman.conf (without custom repository)
+sudo cp -f "$HYPR_SETUP_PATH/default/pacman/pacman.conf" /etc/pacman.conf
+
+echo "Pacman configuration updated."
+echo "Note: Custom repository mirrors have been removed. Using standard Arch Linux mirrors."
+
+# Reset all package DBs and then update
+sudo pacman -Syyu --noconfirm

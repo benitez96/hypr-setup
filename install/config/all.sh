@@ -1,0 +1,19 @@
+run_logged $HYPR_SETUP_INSTALL/config/config.sh
+run_logged $HYPR_SETUP_INSTALL/config/theme.sh
+run_logged $HYPR_SETUP_INSTALL/config/timezones.sh
+run_logged $HYPR_SETUP_INSTALL/config/increase-sudo-tries.sh
+run_logged $HYPR_SETUP_INSTALL/config/increase-lockout-limit.sh
+run_logged $HYPR_SETUP_INSTALL/config/detect-keyboard-layout.sh
+run_logged $HYPR_SETUP_INSTALL/config/fix-powerprofilesctl-shebang.sh
+run_logged $HYPR_SETUP_INSTALL/config/mimetypes.sh
+run_logged $HYPR_SETUP_INSTALL/config/localdb.sh
+run_logged $HYPR_SETUP_INSTALL/config/walker-elephant.sh
+run_logged $HYPR_SETUP_INSTALL/config/fast-shutdown.sh
+run_logged $HYPR_SETUP_INSTALL/config/hardware/network.sh
+run_logged $HYPR_SETUP_INSTALL/config/hardware/set-wireless-regdom.sh
+run_logged $HYPR_SETUP_INSTALL/config/hardware/bluetooth.sh
+run_logged $HYPR_SETUP_INSTALL/config/hardware/printer.sh
+run_logged $HYPR_SETUP_INSTALL/config/hardware/usb-autosuspend.sh
+run_logged $HYPR_SETUP_INSTALL/config/hardware/ignore-power-button.sh
+# run_logged $HYPR_SETUP_INSTALL/config/hardware/nvidia.sh  # Only for NVIDIA GPUs
+run_logged $HYPR_SETUP_INSTALL/config/hardware/fix-f13-amd-audio-input.sh

@@ -1,5 +1,0 @@
-#!/bin/bash
-
-pkill -x hypridle
-setsid hypridle >/dev/null 2>&1 &
-

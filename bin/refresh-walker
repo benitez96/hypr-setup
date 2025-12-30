@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Ensure walker is set to autostart
+mkdir -p ~/.config/autostart/
+cp $HYPR_SETUP_PATH/autostart/walker.desktop ~/.config/autostart/
+systemctl --user daemon-reload
+
+refresh-config walker/config.toml
+refresh-config elephant/calc.toml
+refresh-config elephant/desktopapplications.toml
+restart-walker
