@@ -49,7 +49,7 @@
     "format": "",
     "exec": "update-available",
     "on-click": "launch-floating-terminal-with-presentation update",
-    "tooltip-format": "Omarchy update available",
+    "tooltip-format": "Hypr Setup update available",
     "signal": 7,
     "interval": 21600
   },

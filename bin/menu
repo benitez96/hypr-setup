@@ -75,9 +75,9 @@ aur_install_and_launch() {
 }
 
 show_learn_menu() {
-  case $(menu "Learn" "  Keybindings\n  Omarchy\n  Hyprland\n󰣇  Arch\n  Neovim\n󱆃  Bash") in
+  case $(menu "Learn" "  Keybindings\n  Hyprland\n󰣇  Arch\n  Neovim\n󱆃  Bash") in
   *Keybindings*) menu-keybindings ;;
-  *Omarchy*) launch-webapp "https://learn.omacom.io/2/the-manual" ;;
+  # Removed: Omarchy manual link - no longer relevant
   *Hyprland*) launch-webapp "https://wiki.hypr.land/" ;;
   *Arch*) launch-webapp "https://wiki.archlinux.org/title/Main_page" ;;
   *Bash*) launch-webapp "https://devhints.io/bash" ;;
@@ -222,148 +222,18 @@ show_setup_security_menu() {
 }
 
 show_install_menu() {
-  case $(menu "Install" "󰣇  Package\n󰣇  AUR\n  Web App\n  TUI\n  Service\n  Style\n󰵮  Development\n  Editor\n  Terminal\n󱚤  AI\n󰍲  Windows\n  Gaming") in
+  case $(menu "Install" "󰣇  Package\n󰣇  AUR\n  Web App\n  TUI") in
   *Package*) terminal pkg-install ;;
   *AUR*) terminal pkg-aur-install ;;
   *Web*) present_terminal webapp-install ;;
   *TUI*) present_terminal tui-install ;;
-  *Service*) show_install_service_menu ;;
-  *Style*) show_install_style_menu ;;
-  *Development*) show_install_development_menu ;;
-  *Editor*) show_install_editor_menu ;;
-  *Terminal*) show_install_terminal_menu ;;
-  *AI*) show_install_ai_menu ;;
-  # *Windows*) present_terminal "windows-vm install" ;; # Removed
-  *Gaming*) show_install_gaming_menu ;;
+  # Removed: Service, Style, Development, Editor, Terminal, AI, Windows, Gaming - install manually if needed
   *) show_main_menu ;;
   esac
 }
 
-show_install_service_menu() {
-  case $(menu "Install" "  Dropbox\n  Tailscale\n󰟵  Bitwarden\n  Chromium Account") in
-  *Dropbox*) present_terminal notify-send "Dropbox" "Install manually" ;;
-  *Tailscale*) present_terminal notify-send "Tailscale" "Install manually" ;;
-  *Bitwarden*) install_and_launch "Bitwarden" "bitwarden bitwarden-cli" "bitwarden" ;;
-  *Chromium*) present_terminal notify-send "Chromium" "Configure manually" ;;
-  *) show_install_menu ;;
-  esac
-}
-
-show_install_editor_menu() {
-  case $(menu "Install" "  VSCode\n  Cursor\n  Zed\n  Sublime Text\n  Helix\n  Emacs") in
-  *VSCode*) present_terminal notify-send "VSCode" "Install manually" ;;
-  *Cursor*) install_and_launch "Cursor" "cursor-bin" "cursor" ;;
-  *Zed*) present_terminal "echo 'Installing Zed...'; sudo pacman -S zed && setsid gtk-launch dev.zed.Zed" ;;
-  *Sublime*) install_and_launch "Sublime Text" "sublime-text-4" "sublime_text" ;;
-  *Helix*) install "Helix" "helix" ;;
-  *Emacs*) install "Emacs" "emacs-wayland" && systemctl --user enable --now emacs.service ;;
-  *) show_install_menu ;;
-  esac
-}
-
-show_install_terminal_menu() {
-  case $(menu "Install" "  Alacritty\n  Ghostty\n  Kitty") in
-  *Alacritty*) install_terminal "alacritty" ;;
-  *Ghostty*) install_terminal "ghostty" ;;
-  *Kitty*) install_terminal "kitty" ;;
-  *) show_install_menu ;;
-  esac
-}
-
-show_install_ai_menu() {
-  ollama_pkg=$(
-    (command -v nvidia-smi &>/dev/null && echo ollama-cuda) ||
-      (command -v rocminfo &>/dev/null && echo ollama-rocm) ||
-      echo ollama
-  )
-
-  case $(menu "Install" "󱚤  Claude Code\n󱚤  Cursor CLI\n󱚤  Gemini\n󱚤  OpenAI Codex\n󱚤  LM Studio\n󱚤  Ollama\n󱚤  Crush\n󱚤  opencode") in
-  *Claude*) install "Claude Code" "claude-code" ;;
-  *Cursor*) install "Cursor CLI" "cursor-cli" ;;
-  *OpenAI*) install "OpenAI Codex" "openai-codex-bin" ;;
-  *Gemini*) install "Gemini" "gemini-cli" ;;
-  *Studio*) install "LM Studio" "lmstudio" ;;
-  *Ollama*) install "Ollama" $ollama_pkg ;;
-  *Crush*) install "Crush" "crush-bin" ;;
-  *opencode*) install "opencode" "opencode" ;;
-  *) show_install_menu ;;
-  esac
-}
-
-show_install_gaming_menu() {
-  case $(menu "Install" "  Steam\n  RetroArch [AUR]\n󰍳  Minecraft\n󰖺  Xbox Controller [AUR]") in
-  *Steam*) present_terminal notify-send "Steam" "Install manually" ;;
-  *RetroArch*) aur_install_and_launch "RetroArch" "retroarch retroarch-assets libretro libretro-fbneo" "com.libretro.RetroArch.desktop" ;;
-  *Minecraft*) install_and_launch "Minecraft" "minecraft-launcher" "minecraft-launcher" ;;
-  *Xbox*) present_terminal notify-send "Xbox" "Install manually" ;;
-  *) show_install_menu ;;
-  esac
-}
-
-show_install_style_menu() {
-  case $(menu "Install" "󰸌  Theme\n  Background\n  Font") in
-  # *Theme*) present_terminal theme-install ;; # Removed - install themes manually
-  *Background*) nautilus ~/.config/hypr/current/theme/backgrounds ;;
-  *Font*) show_install_font_menu ;;
-  *) show_install_menu ;;
-  esac
-}
-
-show_install_font_menu() {
-  case $(menu "Install" "  Meslo LG Mono\n  Fira Code\n  Victor Code\n  Bistream Vera Mono\n  Iosevka" "--width 350") in
-  *Meslo*) install_font "Meslo LG Mono" "ttf-meslo-nerd" "MesloLGL Nerd Font" ;;
-  *Fira*) install_font "Fira Code" "ttf-firacode-nerd" "FiraCode Nerd Font" ;;
-  *Victor*) install_font "Victor Code" "ttf-victor-mono-nerd" "VictorMono Nerd Font" ;;
-  *Bistream*) install_font "Bistream Vera Code" "ttf-bitstream-vera-mono-nerd" "BitstromWera Nerd Font" ;;
-  *Iosevka*) install_font "Iosevka" "ttf-iosevka-nerd" "Iosevka Nerd Font Mono" ;;
-  *) show_install_menu ;;
-  esac
-}
-
-show_install_development_menu() {
-  case $(menu "Install" "󰫏  Ruby on Rails\n  Docker DB\n  JavaScript\n  Go\n  PHP\n  Python\n  Elixir\n  Zig\n  Rust\n  Java\n  .NET\n  OCaml\n  Clojure") in
-  *Rails*) present_terminal "notify-send "Dev env" "Install manually" ruby" ;;
-  *Docker*) present_terminal notify-send "Docker DBs" "Install manually" ;;
-  *JavaScript*) show_install_javascript_menu ;;
-  *Go*) present_terminal "notify-send "Dev env" "Install manually" go" ;;
-  *PHP*) show_install_php_menu ;;
-  *Python*) present_terminal "notify-send "Dev env" "Install manually" python" ;;
-  *Elixir*) show_install_elixir_menu ;;
-  *Zig*) present_terminal "notify-send "Dev env" "Install manually" zig" ;;
-  *Rust*) present_terminal "notify-send "Dev env" "Install manually" rust" ;;
-  *Java*) present_terminal "notify-send "Dev env" "Install manually" java" ;;
-  *NET*) present_terminal "notify-send "Dev env" "Install manually" dotnet" ;;
-  *OCaml*) present_terminal "notify-send "Dev env" "Install manually" ocaml" ;;
-  *Clojure*) present_terminal "notify-send "Dev env" "Install manually" clojure" ;;
-  *) show_install_menu ;;
-  esac
-}
-
-show_install_javascript_menu() {
-  case $(menu "Install" "  Node.js\n  Bun\n  Deno") in
-  *Node*) present_terminal "notify-send "Dev env" "Install manually" node" ;;
-  *Bun*) present_terminal "notify-send "Dev env" "Install manually" bun" ;;
-  *Deno*) present_terminal "notify-send "Dev env" "Install manually" deno" ;;
-  *) show_install_development_menu ;;
-  esac
-}
-
-show_install_php_menu() {
-  case $(menu "Install" "  PHP\n  Laravel\n  Symfony") in
-  *PHP*) present_terminal "notify-send "Dev env" "Install manually" php" ;;
-  *Laravel*) present_terminal "notify-send "Dev env" "Install manually" laravel" ;;
-  *Symfony*) present_terminal "notify-send "Dev env" "Install manually" symfony" ;;
-  *) show_install_development_menu ;;
-  esac
-}
-
-show_install_elixir_menu() {
-  case $(menu "Install" "  Elixir\n  Phoenix") in
-  *Elixir*) present_terminal "notify-send "Dev env" "Install manually" elixir" ;;
-  *Phoenix*) present_terminal "notify-send "Dev env" "Install manually" phoenix" ;;
-  *) show_install_development_menu ;;
-  esac
-}
+# Removed menus: Service, Editor, Terminal, AI, Gaming, Style, Development
+# Install these manually if needed
 
 show_remove_menu() {
   case $(menu "Remove" "󰣇  Package\n  Web App\n  TUI\n󰸌  Theme\n󰍲  Windows\n󰈷  Fingerprint\n  Fido2") in
@@ -379,8 +249,8 @@ show_remove_menu() {
 }
 
 show_update_menu() {
-  case $(menu "Update" " Omarchy\n  Config\n󰸌  Extra Themes\n  Process\n󰇅  Hardware\n  Firmware\n  Password\n  Timezone\n  Time") in
-  *Omarchy*) present_terminal update ;;
+  case $(menu "Update" "  Hypr Setup\n  Config\n󰸌  Extra Themes\n  Process\n󰇅  Hardware\n  Firmware\n  Password\n  Timezone\n  Time") in
+  *Hypr*) present_terminal update ;;
   # *Channel*) show_update_channel_menu ;; # Removed - no longer using update channels
   *Config*) show_update_config_menu ;;
   # *Themes*) present_terminal theme-update ;; # Removed - update themes manually

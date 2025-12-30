@@ -57,7 +57,7 @@ function GetEntries()
           Preview = preview_path,
           PreviewType = "file",
           Actions = {
-            activate = "hypr-theme-set " .. theme_name,
+            activate = "theme-set " .. theme_name,
           },
         })
       end

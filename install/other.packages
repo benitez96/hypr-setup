@@ -3,7 +3,6 @@
 
 base
 base-devel
-btrfs-progs
 egl-wayland
 git
 gst-plugin-pipewire
