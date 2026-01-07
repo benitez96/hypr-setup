@@ -29,11 +29,12 @@ menu() {
     local index
     index=$(echo -e "$options" | grep -nxF "$preselect" | cut -d: -f1)
     if [[ -n "$index" ]]; then
-      args+=("-c" "$index")
+      # Rofi uses 0-based indexing, and -selected-row flag
+      args+=("-selected-row" "$((index - 1))")
     fi
   fi
 
-  echo -e "$options" | launch-walker --dmenu --width 295 --minheight 1 --maxheight 630 -p "$prompt…" "${args[@]}" 2>/dev/null
+  echo -e "$options" | rofi -dmenu -p "$prompt" -width 295 -lines 15 "${args[@]}" 2>/dev/null
 }
 
 terminal() {
@@ -155,7 +156,7 @@ show_style_menu() {
 }
 
 show_theme_menu() {
-  launch-walker -m menus:hyprthemes --width 800 --minheight 400
+  rofi -modi "themes:cat ~/.config/hypr/current/theme/name" -show themes -width 800 -lines 20
 }
 
 show_font_menu() {
@@ -323,7 +324,7 @@ show_main_menu() {
 
 go_to_menu() {
   case "${1,,}" in
-  *apps*) walker -p "Launch…" ;;
+  *apps*) launch-rofi ;;
   *learn*) show_learn_menu ;;
   *trigger*) show_trigger_menu ;;
   *share*) show_share_menu ;;

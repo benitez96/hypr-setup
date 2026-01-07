@@ -1,0 +1,56 @@
+#!/bin/bash
+
+# Launch rofi in application launcher mode
+# Replaces launch-walker for a lighter alternative
+
+# Check if rofi is installed
+if ! command -v rofi &> /dev/null; then
+  notify-send "Error" "rofi is not installed. Please install it with: sudo pacman -S rofi"
+  exit 1
+fi
+
+# Default mode: drun (application launcher)
+MODE="${1:-drun}"
+
+case "$MODE" in
+  -m|--mode)
+    # Handle mode flag
+    case "$2" in
+      symbols|emoji)
+        # Emoji picker - requires rofi-emoji or similar
+        if command -v rofi-emoji &> /dev/null; then
+          exec rofi-emoji
+        else
+          # Fallback: use rofi drun mode
+          notify-send "Info" "rofi-emoji not installed. Install with: sudo pacman -S rofi-emoji"
+          exec rofi -show drun
+        fi
+        ;;
+      clipboard)
+        # Clipboard manager - use rofi with clipboard history
+        # You may want to install rofi-greenclip or similar
+        if command -v rofi-greenclip &> /dev/null; then
+          exec rofi-greenclip
+        elif command -v greenclip &> /dev/null; then
+          # Use greenclip with rofi
+          exec rofi -modi "clipboard:greenclip print" -show clipboard -run-command '{cmd}'
+        else
+          # Fallback: simple clipboard with rofi and xclip/xsel
+          if command -v xclip &> /dev/null; then
+            exec rofi -modi "clipboard:xclip -selection clipboard -o" -show clipboard
+          else
+            notify-send "Info" "Install greenclip or xclip for clipboard manager"
+            exec rofi -show drun
+          fi
+        fi
+        ;;
+      *)
+        exec rofi -show drun
+        ;;
+    esac
+    ;;
+  *)
+    # Default: application launcher
+    exec rofi -show drun
+    ;;
+esac

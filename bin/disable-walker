@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Disable walker/elephant autostart and stop services
+# Use this after migrating to rofi
+
+echo "Disabling walker and elephant services..."
+
+# Stop services if running
+systemctl --user stop elephant.service 2>/dev/null
+systemctl --user stop app-walker@autostart.service 2>/dev/null
+
+# Disable autostart
+rm -f ~/.config/autostart/walker.desktop
+
+# Disable systemd services
+systemctl --user disable elephant.service 2>/dev/null
+systemctl --user disable app-walker@autostart.service 2>/dev/null
+
+echo "Walker and elephant have been disabled."
+echo "You can now use rofi instead with: launch-rofi"
+

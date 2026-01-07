@@ -16,8 +16,8 @@ if [[ -f ~/.local/state/hypr/toggles/screensaver-off ]] && [[ $1 != "force" ]]; 
   exit 1
 fi
 
-# Silently quit Walker on overlay
-walker -q
+# Silently quit any launcher on overlay (rofi doesn't need this)
+# walker -q
 
 focused=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true).name')
 terminal=$(xdg-terminal-exec --print-id)
