@@ -7,7 +7,6 @@ run_logged $HYPR_SETUP_INSTALL/config/detect-keyboard-layout.sh
 run_logged $HYPR_SETUP_INSTALL/config/fix-powerprofilesctl-shebang.sh
 run_logged $HYPR_SETUP_INSTALL/config/mimetypes.sh
 run_logged $HYPR_SETUP_INSTALL/config/localdb.sh
-run_logged $HYPR_SETUP_INSTALL/config/walker-elephant.sh
 run_logged $HYPR_SETUP_INSTALL/config/fast-shutdown.sh
 run_logged $HYPR_SETUP_INSTALL/config/hardware/network.sh
 run_logged $HYPR_SETUP_INSTALL/config/hardware/set-wireless-regdom.sh

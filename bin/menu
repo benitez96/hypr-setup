@@ -156,7 +156,7 @@ show_style_menu() {
 }
 
 show_theme_menu() {
-  rofi -modi "themes:cat ~/.config/hypr/current/theme/name" -show themes -width 800 -lines 20
+  show-theme-menu
 }
 
 show_font_menu() {
@@ -207,7 +207,6 @@ show_setup_config_menu() {
   *Hyprlock*) open_in_editor ~/.config/hypr/hyprlock.conf ;;
   *Hyprsunset*) open_in_editor ~/.config/hypr/hyprsunset.conf && restart-hyprsunset ;;
   *Swayosd*) open_in_editor ~/.config/swayosd/config.toml && restart-swayosd ;;
-  *Walker*) open_in_editor ~/.config/walker/config.toml && restart-walker ;;
   *Waybar*) open_in_editor ~/.config/waybar/config.jsonc && restart-waybar ;;
   *XCompose*) open_in_editor ~/.XCompose && notify-send "XCompose" "Restart manually if needed" ;;
   *) show_main_menu ;;
@@ -267,25 +266,23 @@ show_update_menu() {
 
 # Removed show_update_channel_menu - no longer using update channels
 show_update_process_menu() {
-  case $(menu "Restart" "  Hypridle\n  Hyprsunset\n  Swayosd\n󰌧  Walker\n󰍜  Waybar") in
+  case $(menu "Restart" "  Hypridle\n  Hyprsunset\n  Swayosd\n󰍜  Waybar") in
   *Hypridle*) restart-hypridle ;;
   *Hyprsunset*) restart-hyprsunset ;;
   *Swayosd*) restart-swayosd ;;
-  *Walker*) restart-walker ;;
   *Waybar*) restart-waybar ;;
   *) show_update_menu ;;
   esac
 }
 
 show_update_config_menu() {
-  case $(menu "Use default config" "  Hyprland\n  Hypridle\n  Hyprlock\n  Hyprsunset\n󱣴  Plymouth\n  Swayosd\n󰌧  Walker\n󰍜  Waybar") in
+  case $(menu "Use default config" "  Hyprland\n  Hypridle\n  Hyprlock\n  Hyprsunset\n󱣴  Plymouth\n  Swayosd\n󰍜  Waybar") in
   *Hyprland*) present_terminal refresh-hyprland ;;
   *Hypridle*) present_terminal refresh-hypridle ;;
   *Hyprlock*) present_terminal refresh-hyprlock ;;
   *Hyprsunset*) present_terminal refresh-hyprsunset ;;
   *Plymouth*) present_terminal refresh-plymouth ;;
   *Swayosd*) present_terminal refresh-swayosd ;;
-  *Walker*) present_terminal refresh-walker ;;
   *Waybar*) present_terminal refresh-waybar ;;
   *) show_update_menu ;;
   esac

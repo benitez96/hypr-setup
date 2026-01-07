@@ -27,19 +27,20 @@ case "$MODE" in
         fi
         ;;
       clipboard)
-        # Clipboard manager - use rofi with clipboard history
-        # You may want to install rofi-greenclip or similar
-        if command -v rofi-greenclip &> /dev/null; then
-          exec rofi-greenclip
-        elif command -v greenclip &> /dev/null; then
-          # Use greenclip with rofi
+        # Clipboard manager - use greenclip (from AUR)
+        if command -v greenclip &> /dev/null; then
+          # Ensure greenclip daemon is running
+          if ! pgrep -x greenclip > /dev/null; then
+            greenclip daemon &
+            sleep 1
+          fi
           exec rofi -modi "clipboard:greenclip print" -show clipboard -run-command '{cmd}'
         else
           # Fallback: simple clipboard with rofi and xclip/xsel
           if command -v xclip &> /dev/null; then
             exec rofi -modi "clipboard:xclip -selection clipboard -o" -show clipboard
           else
-            notify-send "Info" "Install greenclip or xclip for clipboard manager"
+            notify-send "Info" "Install greenclip (AUR) or xclip for clipboard manager"
             exec rofi -show drun
           fi
         fi

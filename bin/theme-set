@@ -42,3 +42,6 @@ theme-set-browser
 
 # Call hook on theme set
 hook theme-set "$THEME_NAME"
+
+# Regenerate rofi theme
+generate-rofi-theme

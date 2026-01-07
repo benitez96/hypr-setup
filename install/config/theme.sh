@@ -16,3 +16,7 @@ ln -snf ~/.config/hypr/current/theme/btop.theme ~/.config/btop/themes/current.th
 
 mkdir -p ~/.config/mako
 ln -snf ~/.config/hypr/current/theme/mako.ini ~/.config/mako/config
+
+# Generate initial rofi theme
+mkdir -p ~/.config/rofi
+generate-rofi-theme

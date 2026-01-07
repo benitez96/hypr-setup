@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# Show theme selection menu using rofi
+# Lists all available themes and allows selection
+
+THEMES_DIR="$HOME/.config/hypr/themes"
+CURRENT_THEME=$(basename "$(realpath "$HOME/.config/hypr/current/theme" 2>/dev/null)" 2>/dev/null)
+
+# Get list of themes
+THEMES=($(find "$THEMES_DIR" -mindepth 1 -maxdepth 1 -type d -o -type l | sort | xargs -n1 basename))
+
+if [[ ${#THEMES[@]} -eq 0 ]]; then
+  notify-send "Error" "No themes found in $THEMES_DIR"
+  exit 1
+fi
+
+# Format themes for rofi (with current theme marked)
+THEME_LIST=""
+CURRENT_INDEX=0
+INDEX=0
+for theme in "${THEMES[@]}"; do
+  theme_display=$(echo "$theme" | sed -E 's/(^|-)([a-z])/\1\u\2/g; s/-/ /g')
+  if [[ "$theme" == "$CURRENT_THEME" ]]; then
+    THEME_LIST+="✓ $theme_display\n"
+    CURRENT_INDEX=$INDEX
+  else
+    THEME_LIST+="  $theme_display\n"
+  fi
+  ((INDEX++))
+done
+
+# Remove trailing newline
+THEME_LIST="${THEME_LIST%\\n}"
+
+# Show rofi menu with current theme selected
+SELECTED=$(echo -e "$THEME_LIST" | rofi -dmenu -p "Theme" -width 400 -lines 10 -selected-row "$CURRENT_INDEX")
+
+if [[ -z "$SELECTED" ]]; then
+  exit 0
+fi
+
+# Extract theme name (remove checkmark and spaces, convert back to directory name format)
+SELECTED_CLEAN=$(echo "$SELECTED" | sed 's/^✓ //; s/^  //')
+THEME_NAME=""
+
+# Find matching theme by display name
+for theme in "${THEMES[@]}"; do
+  theme_display=$(echo "$theme" | sed -E 's/(^|-)([a-z])/\1\u\2/g; s/-/ /g')
+  if [[ "$theme_display" == "$SELECTED_CLEAN" ]]; then
+    THEME_NAME="$theme"
+    break
+  fi
+done
+
+if [[ -n "$THEME_NAME" ]]; then
+  theme-set "$THEME_NAME"
+else
+  notify-send "Error" "Could not find theme matching '$SELECTED_CLEAN'"
+fi

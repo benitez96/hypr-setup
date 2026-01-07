@@ -19,3 +19,5 @@ pipewire-pulse
 qt6-wayland
 webp-pixbuf-loader
 wget
+# AUR packages (installed via yay)
+greenclip
