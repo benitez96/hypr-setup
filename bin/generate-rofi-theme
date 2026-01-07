@@ -19,11 +19,16 @@ if [[ -f "$THEME_DIR/ghostty.conf" ]]; then
   BG_COL=$(grep "^background" "$THEME_DIR/ghostty.conf" | head -1 | awk '{print $2}' | tr -d '=')
   FG_COL=$(grep "^foreground" "$THEME_DIR/ghostty.conf" | head -1 | awk '{print $2}' | tr -d '=')
   
+  # Validate colors (must start with #)
+  [[ ! "$BG_COL" =~ ^# ]] && BG_COL="#1e1e2e"
+  [[ ! "$FG_COL" =~ ^# ]] && FG_COL="#cdd6f4"
+  
   # Extract accent color (use blue from palette, or cyan as fallback)
   ACCENT=$(grep "^palette = 4=" "$THEME_DIR/ghostty.conf" | head -1 | awk -F'=' '{print $3}' | tr -d ' ')
-  if [[ -z "$ACCENT" ]]; then
+  if [[ -z "$ACCENT" ]] || [[ ! "$ACCENT" =~ ^# ]]; then
     ACCENT=$(grep "^palette = 6=" "$THEME_DIR/ghostty.conf" | head -1 | awk -F'=' '{print $3}' | tr -d ' ')
   fi
+  [[ ! "$ACCENT" =~ ^# ]] && ACCENT="#89b4fa"
   
   # Use border color as accent if available
   BORDER="$ACCENT"
@@ -48,8 +53,28 @@ if [[ "$BG_COL" == "#1e1e2e" ]] && [[ -f "$THEME_DIR/alacritty.toml" ]]; then
   BG_COL=$(grep "background" "$THEME_DIR/alacritty.toml" | head -1 | awk -F'"' '{print $2}')
   FG_COL=$(grep "foreground" "$THEME_DIR/alacritty.toml" | head -1 | awk -F'"' '{print $2}')
   ACCENT=$(grep "blue" "$THEME_DIR/alacritty.toml" | head -1 | awk -F'"' '{print $2}')
+  
+  # Validate colors
+  [[ ! "$BG_COL" =~ ^# ]] && BG_COL="#1e1e2e"
+  [[ ! "$FG_COL" =~ ^# ]] && FG_COL="#cdd6f4"
+  [[ ! "$ACCENT" =~ ^# ]] && ACCENT="#89b4fa"
+  
   BORDER="$ACCENT"
 fi
+
+# Ensure all colors are valid (must start with # and be valid hex)
+# Remove any whitespace and ensure proper format
+BG_COL=$(echo "$BG_COL" | tr -d '[:space:]')
+BG_LIGHT=$(echo "$BG_LIGHT" | tr -d '[:space:]')
+FG_COL=$(echo "$FG_COL" | tr -d '[:space:]')
+ACCENT=$(echo "$ACCENT" | tr -d '[:space:]')
+BORDER=$(echo "$BORDER" | tr -d '[:space:]')
+
+[[ ! "$BG_COL" =~ ^#[0-9A-Fa-f]{6}$ ]] && BG_COL="#1e1e2e"
+[[ ! "$BG_LIGHT" =~ ^#[0-9A-Fa-f]{6}$ ]] && BG_LIGHT="#28283a"
+[[ ! "$FG_COL" =~ ^#[0-9A-Fa-f]{6}$ ]] && FG_COL="#cdd6f4"
+[[ ! "$ACCENT" =~ ^#[0-9A-Fa-f]{6}$ ]] && ACCENT="#89b4fa"
+[[ ! "$BORDER" =~ ^#[0-9A-Fa-f]{6}$ ]] && BORDER="#89b4fa"
 
 # Generate rofi config
 cat > "$ROFI_CONFIG" << EOF
@@ -79,16 +104,16 @@ configuration {
 }
 
 * {
-    bg-col:  $BG_COL;
-    bg-col-light: $BG_LIGHT;
-    border-col: $BORDER;
-    selected-col: $ACCENT;
-    blue: $ACCENT;
-    fg-col: $FG_COL;
-    fg-col2: $FG_COL;
-    grey: $FG_COL;
-    width: 600;
-    font: "JetBrainsMono Nerd Font 10";
+    bg-col:                          $BG_COL;
+    bg-col-light:                    $BG_LIGHT;
+    border-col:                       $BORDER;
+    selected-col:                     $ACCENT;
+    blue:                             $ACCENT;
+    fg-col:                           $FG_COL;
+    fg-col2:                          $FG_COL;
+    grey:                             $FG_COL;
+    width:                            600;
+    font:                             "JetBrainsMono Nerd Font 10";
 }
 
 element-text, element-icon, mode-switcher {
