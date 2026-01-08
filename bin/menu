@@ -34,7 +34,7 @@ menu() {
     fi
   fi
 
-  echo -e "$options" | rofi -dmenu -p "$prompt" -width 295 -lines 15 "${args[@]}" 2>/dev/null
+  echo -e "$options" | rofi -dmenu -i -p "$prompt" -width 295 -lines 15 "${args[@]}" 2>/dev/null
 }
 
 terminal() {
@@ -88,18 +88,16 @@ show_learn_menu() {
 }
 
 show_trigger_menu() {
-  case $(menu "Trigger" "  Capture\n  Share\n󰔎  Toggle") in
+  case $(menu "Trigger" "  Capture\n󰔎  Toggle") in
   *Capture*) show_capture_menu ;;
-  *Share*) show_share_menu ;;
   *Toggle*) show_toggle_menu ;;
   *) show_main_menu ;;
   esac
 }
 
 show_capture_menu() {
-  case $(menu "Capture" "  Screenshot\n  Screenrecord\n󰃉  Color") in
+  case $(menu "Capture" "  Screenshot\n󰃉  Color") in
   *Screenshot*) show_screenshot_menu ;;
-  *Screenrecord*) show_screenrecord_menu ;;
   *Color*) pkill hyprpicker || hyprpicker -a ;;
   *) show_trigger_menu ;;
   esac
@@ -110,26 +108,6 @@ show_screenshot_menu() {
   *Editing*) cmd-screenshot smart ;;
   *Clipboard*) cmd-screenshot smart clipboard ;;
   *) show_capture_menu ;;
-  esac
-}
-
-show_screenrecord_menu() {
-  notify-send "Screen recording" "Feature removed"
-
-  case $(menu "Screenrecord" "  With desktop audio\n  With desktop + microphone audio\n  With desktop + microphone audio + webcam") in
-  *"With desktop audio") notify-send "Screen recording" "Feature removed" ;;
-  *"With desktop + microphone audio") notify-send "Screen recording" "Feature removed" --with-microphone-audio ;;
-  *"With desktop + microphone audio + webcam") notify-send "Screen recording" "Feature removed" --with-microphone-audio --with-webcam ;;
-  *) back_to show_capture_menu ;;
-  esac
-}
-
-show_share_menu() {
-  case $(menu "Share" "  Clipboard\n  File \n  Folder") in
-  *Clipboard*) notify-send "File sharing" "Feature removed" ;;
-  *File*) terminal bash -c "notify-send "File sharing" "Feature removed"" ;;
-  *Folder*) terminal bash -c "notify-send "File sharing" "Feature removed"" ;;
-  *) back_to show_trigger_menu ;;
   esac
 }
 
@@ -236,12 +214,11 @@ show_install_menu() {
 # Install these manually if needed
 
 show_remove_menu() {
-  case $(menu "Remove" "󰣇  Package\n  Web App\n  TUI\n󰸌  Theme\n󰍲  Windows\n󰈷  Fingerprint\n  Fido2") in
+  case $(menu "Remove" "󰣇  Package\n  Web App\n  TUI\n󰸌  Theme\n󰈷  Fingerprint\n  Fido2") in
   *Package*) terminal pkg-remove ;;
   *Web*) present_terminal webapp-remove ;;
   *TUI*) present_terminal tui-remove ;;
   *Theme*) present_terminal theme-remove ;;
-  # *Windows*) present_terminal "windows-vm remove" ;; # Removed
   *Fingerprint*) present_terminal "setup-fingerprint --remove" ;;
   *Fido2*) present_terminal "setup-fido2 --remove" ;;
   *) show_main_menu ;;
@@ -298,8 +275,7 @@ show_update_hardware_menu() {
 }
 
 show_update_password_menu() {
-  case $(menu "Update Password" "  Drive Encryption\n  User") in
-  *Drive*) present_terminal notify-send "Drive" "Feature removed" ;;
+  case $(menu "Update Password" "  User") in
   *User*) present_terminal passwd ;;
   *) show_update_menu ;;
   esac
@@ -324,11 +300,9 @@ go_to_menu() {
   *apps*) launch-rofi ;;
   *learn*) show_learn_menu ;;
   *trigger*) show_trigger_menu ;;
-  *share*) show_share_menu ;;
   *style*) show_style_menu ;;
   *theme*) show_theme_menu ;;
   *screenshot*) show_screenshot_menu ;;
-  *screenrecord*) show_screenrecord_menu ;;
   *setup*) show_setup_menu ;;
   *power*) show_setup_power_menu ;;
   *install*) show_install_menu ;;

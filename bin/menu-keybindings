@@ -225,5 +225,5 @@ build_keymap_cache
   parse_keycodes |
   parse_bindings |
   prioritize_entries |
-  rofi -dmenu -p 'Keybindings' -width 800 -lines "$menu_height"
+  rofi -dmenu -i -p 'Keybindings' -width 800 -lines "$menu_height"
 

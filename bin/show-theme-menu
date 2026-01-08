@@ -33,7 +33,7 @@ done
 THEME_LIST="${THEME_LIST%\\n}"
 
 # Show rofi menu with current theme selected
-SELECTED=$(echo -e "$THEME_LIST" | rofi -dmenu -p "Theme" -width 400 -lines 10 -selected-row "$CURRENT_INDEX")
+SELECTED=$(echo -e "$THEME_LIST" | rofi -dmenu -i -p "Theme" -width 400 -lines 10 -selected-row "$CURRENT_INDEX")
 
 if [[ -z "$SELECTED" ]]; then
   exit 0
