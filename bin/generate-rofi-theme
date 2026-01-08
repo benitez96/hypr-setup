@@ -116,11 +116,6 @@ configuration {
     font:                             "JetBrainsMono Nerd Font 10";
 }
 
-element-text, element-icon, mode-switcher {
-    background-color: inherit;
-    text-color:       inherit;
-}
-
 window {
     height: 360px;
     border: 2px;
@@ -158,7 +153,6 @@ entry {
     text-color: @fg-col;
     padding: 6px;
     margin: 20px;
-    text-color: @fg-col;
     border-radius: 3px;
 }
 
@@ -166,6 +160,7 @@ listview {
     border-radius: 5px;
     margin: 0px 0px 10px 0px;
     padding: 0px 0px 0px 0px;
+    background-color: @bg-col;
 }
 
 element {
@@ -175,21 +170,31 @@ element {
     margin: 0px 5px 0px 5px;
 }
 
+element-text {
+    background-color: transparent;
+    text-color: @fg-col;
+}
+
 element-icon {
+    background-color: transparent;
     size: 30px;
 }
 
 element selected {
     background-color: @selected-col;
-    text-color: @bg-col;
-}
-
-element-text {
-    text-color: @fg-col;
 }
 
 element selected element-text {
+    background-color: transparent;
     text-color: @bg-col;
+}
+
+element selected element-icon {
+    background-color: transparent;
+}
+
+mode-switcher {
+    background-color: @bg-col;
 }
 EOF
 
