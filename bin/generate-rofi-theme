@@ -158,18 +158,21 @@ listview {
 element {
     background-color: $BG_LIGHT;
     border-radius: 3px;
-    padding: 5px;
+    padding: 0px;
+    spacing: 0px
     margin: 0px 5px 0px 5px;
     border: 1px;
     border-color: $BORDER;
 }
 
 element-text {
+    padding: 5px;
     background-color: $BG_LIGHT;
     text-color: $FG_COL;
 }
 
 element-icon {
+    padding: 5px;
     background-color: $BG_LIGHT;
     size: 30px;
 }
