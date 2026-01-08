@@ -163,12 +163,12 @@ element {
 }
 
 element-text {
-    background-color: transparent;
+    background-color: $BG_COL;
     text-color: $FG_COL;
 }
 
 element-icon {
-    background-color: transparent;
+    background-color: $BG_COL;
     size: 30px;
 }
 
@@ -177,12 +177,12 @@ element selected {
 }
 
 element selected element-text {
-    background-color: transparent;
+    background-color: $ACCENT;
     text-color: $BG_COL;
 }
 
 element selected element-icon {
-    background-color: transparent;
+    background-color: $ACCENT;
 }
 
 mode-switcher {
