@@ -160,11 +160,11 @@ listview {
     border-radius: 5px;
     margin: 0px 0px 10px 0px;
     padding: 0px 0px 0px 0px;
-    background-color: @bg-col;
+    background-color: $BG_COL;
 }
 
 element {
-    background-color: @bg-col;
+    background-color: $BG_COL;
     border-radius: 3px;
     padding: 5px;
     margin: 0px 5px 0px 5px;
@@ -181,7 +181,7 @@ element-icon {
 }
 
 element selected {
-    background-color: @selected-col;
+    background-color: $ACCENT;
 }
 
 element selected element-text {
