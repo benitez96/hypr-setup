@@ -87,19 +87,11 @@ show_learn_menu() {
   esac
 }
 
-show_trigger_menu() {
-  case $(menu "Trigger" "  Capture\n󰔎  Toggle") in
-  *Capture*) show_capture_menu ;;
-  *Toggle*) show_toggle_menu ;;
-  *) show_main_menu ;;
-  esac
-}
-
 show_capture_menu() {
   case $(menu "Capture" "  Screenshot\n󰃉  Color") in
   *Screenshot*) show_screenshot_menu ;;
   *Color*) pkill hyprpicker || hyprpicker -a ;;
-  *) show_trigger_menu ;;
+  *) show_main_menu ;;
   esac
 }
 
@@ -117,7 +109,7 @@ show_toggle_menu() {
   *Nightlight*) toggle-nightlight ;;
   *Idle*) toggle-idle ;;
   *Bar*) toggle-waybar ;;
-  *) show_trigger_menu ;;
+  *) show_main_menu ;;
   esac
 }
 
@@ -147,7 +139,7 @@ show_font_menu() {
 }
 
 show_setup_menu() {
-  local options="  Audio\n  Wifi\n󰂯  Bluetooth\n󱐋  Power Profile\n󰍹  Monitors"
+  local options="  Audio\n  Wifi\n󰂯  Bluetooth\n󱐋  Power Profile\n󰍹  Monitors\n🖨️  Printers"
   [ -f ~/.config/hypr/bindings.conf ] && options="$options\n  Keybindings"
   [ -f ~/.config/hypr/input.conf ] && options="$options\n  Input"
   options="$options\n  Defaults\n󰱔  DNS\n  Security\n  Config"
@@ -158,6 +150,7 @@ show_setup_menu() {
   *Bluetooth*) launch-bluetooth ;;
   *Power*) show_setup_power_menu ;;
   *Monitors*) open_in_editor ~/.config/hypr/monitors.conf ;;
+  *Printers*) uwsm-app -- system-config-printer ;;
   *Keybindings*) open_in_editor ~/.config/hypr/bindings.conf ;;
   *Input*) open_in_editor ~/.config/hypr/input.conf ;;
   *Defaults*) open_in_editor ~/.config/uwsm/default ;;
@@ -226,11 +219,7 @@ show_remove_menu() {
 }
 
 show_update_menu() {
-  case $(menu "Update" "  Hypr Setup\n  Config\n󰸌  Extra Themes\n  Process\n󰇅  Hardware\n  Firmware\n  Password\n  Timezone\n  Time") in
-  *Hypr*) present_terminal update ;;
-  # *Channel*) show_update_channel_menu ;; # Removed - no longer using update channels
-  *Config*) show_update_config_menu ;;
-  # *Themes*) present_terminal theme-update ;; # Removed - update themes manually
+  case $(menu "Update" "  Process\n󰇅  Hardware\n  Firmware\n  Password\n  Timezone\n  Time") in
   *Process*) show_update_process_menu ;;
   *Hardware*) show_update_hardware_menu ;;
   *Firmware*) present_terminal update-firmware ;;
@@ -252,18 +241,7 @@ show_update_process_menu() {
   esac
 }
 
-show_update_config_menu() {
-  case $(menu "Use default config" "  Hyprland\n  Hypridle\n  Hyprlock\n  Hyprsunset\n󱣴  Plymouth\n  Swayosd\n󰍜  Waybar") in
-  *Hyprland*) present_terminal refresh-hyprland ;;
-  *Hypridle*) present_terminal refresh-hypridle ;;
-  *Hyprlock*) present_terminal refresh-hyprlock ;;
-  *Hyprsunset*) present_terminal refresh-hyprsunset ;;
-  *Plymouth*) present_terminal refresh-plymouth ;;
-  *Swayosd*) present_terminal refresh-swayosd ;;
-  *Waybar*) present_terminal refresh-waybar ;;
-  *) show_update_menu ;;
-  esac
-}
+# Removed show_update_config_menu - no longer using omarchy config refresh
 
 show_update_hardware_menu() {
   case $(menu "Restart" "  Audio\n󱚾  Wi-Fi\n󰂯  Bluetooth") in
@@ -292,14 +270,15 @@ show_system_menu() {
 }
 
 show_main_menu() {
-  go_to_menu "$(menu "Go" "󰀻  Apps\n󰧑  Learn\n󱓞  Trigger\n  Style\n  Setup\n󰉉  Install\n󰭌  Remove\n  Update\n  About\n  System")"
+  go_to_menu "$(menu "Go" "󰀻  Apps\n󰧑  Learn\n  Capture\n󰔎  Toggle\n  Style\n  Setup\n󰉉  Install\n󰭌  Remove\n  Update\n  About\n  System")"
 }
 
 go_to_menu() {
   case "${1,,}" in
   *apps*) launch-rofi ;;
   *learn*) show_learn_menu ;;
-  *trigger*) show_trigger_menu ;;
+  *capture*) show_capture_menu ;;
+  *toggle*) show_toggle_menu ;;
   *style*) show_style_menu ;;
   *theme*) show_theme_menu ;;
   *screenshot*) show_screenshot_menu ;;

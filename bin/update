@@ -7,6 +7,6 @@ trap 'echo ""; echo -e "\033[0;31mSomething went wrong during the update!\n\nPle
 if [[ $1 == "-y" ]] || update-confirm; then
   update-without-idle
   # Snapshot functionality removed - configure snapshots manually if needed
-  update-git
+  # Removed: update-git - no longer using omarchy repository updates
   update-perform
 fi

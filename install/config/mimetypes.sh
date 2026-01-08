@@ -9,16 +9,28 @@ xdg-mime default imv.desktop image/webp
 xdg-mime default imv.desktop image/bmp
 xdg-mime default imv.desktop image/tiff
 
-# Open PDFs with the Document Viewer
-xdg-mime default org.gnome.Evince.desktop application/pdf
+# Open PDFs with the Document Viewer (prefer flatpak evince if available)
+if flatpak list | grep -q "org.gnome.Evince" 2>/dev/null; then
+  xdg-mime default org.gnome.Evince.desktop application/pdf
+elif [ -f /usr/share/applications/org.gnome.Evince.desktop ]; then
+  xdg-mime default org.gnome.Evince.desktop application/pdf
+fi
 
-# Use Chromium as the default browser (required for web apps)
-if command -v chromium &>/dev/null || [ -f /usr/share/applications/chromium.desktop ]; then
+# Use Brave as the default browser (prefer flatpak version), fallback to Chromium
+if flatpak list | grep -q "com.brave.Browser" 2>/dev/null; then
+  xdg-settings set default-web-browser com.brave.Browser.desktop
+  xdg-mime default com.brave.Browser.desktop x-scheme-handler/http
+  xdg-mime default com.brave.Browser.desktop x-scheme-handler/https
+elif command -v brave &>/dev/null || [ -f /usr/share/applications/brave-browser.desktop ]; then
+  xdg-settings set default-web-browser brave-browser.desktop
+  xdg-mime default brave-browser.desktop x-scheme-handler/http
+  xdg-mime default brave-browser.desktop x-scheme-handler/https
+elif command -v chromium &>/dev/null || [ -f /usr/share/applications/chromium.desktop ]; then
   xdg-settings set default-web-browser chromium.desktop
   xdg-mime default chromium.desktop x-scheme-handler/http
   xdg-mime default chromium.desktop x-scheme-handler/https
 else
-  gum log --level warn "Chromium not found. Web apps may not work. Install a browser and set it as default."
+  gum log --level warn "No browser found. Web apps may not work. Install a browser and set it as default."
 fi
 
 # Open video files with mpv

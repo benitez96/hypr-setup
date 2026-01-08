@@ -9,7 +9,7 @@ A minimalist, modern Hyprland configuration setup.
 Install the complete system with a single command:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/benitez96/hypr-setup/main/boot.sh | bash -s benitez96/hypr-setup
+curl -sSL https://raw.githubusercontent.com/benitez96/hypr-setup/main/boot.sh | bash
 ```
 
 ### Manual Install

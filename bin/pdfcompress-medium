@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Compress PDF with medium quality (printer settings)
+# Usage: pdfcompress-medium input.pdf output.pdf
+
+if [ "$#" -ne 2 ]; then
+  echo "Usage: $0 <input.pdf> <output.pdf>"
+  exit 1
+fi
+
+gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/printer \
+   -dNOPAUSE -dQUIET -dBATCH \
+   -sOutputFile="$2" "$1"
+

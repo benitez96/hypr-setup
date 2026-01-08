@@ -20,8 +20,10 @@ dust
 eza
 fastfetch
 fd
+flatpak
 fontconfig
 fzf
+ghostscript
 ghostty
 gnome-calculator
 gnome-keyring
@@ -69,7 +71,6 @@ rofi
 rofi-emoji
 satty
 ly
-signal-desktop
 slurp
 starship
 sushi

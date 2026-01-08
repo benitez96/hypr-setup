@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Merge multiple PDFs into one
+# Usage: pdfmerge input1.pdf input2.pdf ... output.pdf
+
+if [ "$#" -lt 2 ]; then
+  echo "Usage: $0 <input1.pdf> <input2.pdf> ... <output.pdf>"
+  exit 1
+fi
+
+salida="${@: -1}"
+entradas=("${@:1:$#-1}")
+
+gs -dBATCH -dNOPAUSE -dQUIET -q -sDEVICE=pdfwrite -sOutputFile="$salida" "${entradas[@]}"
+

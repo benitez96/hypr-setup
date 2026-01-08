@@ -17,6 +17,15 @@ if pacman -Qem >/dev/null; then
   fi
 fi
 
+# Update Flatpak applications if flatpak is installed and has apps
+if command -v flatpak &>/dev/null; then
+  if flatpak list &>/dev/null && [[ -n $(flatpak list 2>/dev/null) ]]; then
+    echo -e "\e[32m\nUpdate Flatpak applications\e[0m"
+    flatpak update --noninteractive --assumeyes || true
+    echo
+  fi
+fi
+
 orphans=$(pacman -Qtdq || true)
 if [[ -n $orphans ]]; then
   echo -e "\e[32m\nRemove orphan system packages\e[0m"

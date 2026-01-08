@@ -25,14 +25,11 @@ sudo pacman -Syu --noconfirm --needed git
 
 # Use custom repo if specified via environment variable or argument
 # Format: user/repo or full URL
+# Default to benitez96/hypr-setup if not specified
 if [[ -n "$1" ]]; then
   HYPR_SETUP_REPO="$1"
 elif [[ -z "$HYPR_SETUP_REPO" ]]; then
-  echo -e "\e[31mError: Repository not specified\e[0m"
-  echo -e "Usage: $0 [user/repo]"
-  echo -e "   or: HYPR_SETUP_REPO=user/repo $0"
-  echo -e "   or: curl -sSL https://raw.githubusercontent.com/USER/REPO/main/boot.sh | bash -s USER/REPO"
-  exit 1
+  HYPR_SETUP_REPO="benitez96/hypr-setup"
 fi
 
 # Handle full URLs or user/repo format
