@@ -17,21 +17,6 @@ if ! command -v ly &> /dev/null; then
   }
 fi
 
-# Disable other display managers if they exist
-if systemctl is-enabled sddm.service &>/dev/null; then
-  echo "Disabling sddm service..."
-  sudo systemctl disable sddm.service 2>/dev/null || true
-fi
-
-if systemctl is-enabled gdm.service &>/dev/null; then
-  echo "Disabling gdm service..."
-  sudo systemctl disable gdm.service 2>/dev/null || true
-fi
-
-if systemctl is-enabled lightdm.service &>/dev/null; then
-  echo "Disabling lightdm service..."
-  sudo systemctl disable lightdm.service 2>/dev/null || true
-fi
 
 # Disable getty on tty2 (ly runs on tty2 by default)
 # This prevents getty from interfering with ly
@@ -47,31 +32,6 @@ else
   sudo systemctl enable --now ly@tty2.service
 fi
 
-# Configure ly for Hyprland
-sudo mkdir -p /etc/ly
-if [[ ! -f /etc/ly/config.ini ]]; then
-  cat <<EOF | sudo tee /etc/ly/config.ini
-[main]
-tty=2
-x_cmd=start-hyprland
-
-[display]
-bg=clear
-fg=clear
-x=0
-y=0
-w=
-h=
-
-[input]
-repeat_rate=25
-repeat_delay=600
-
-[command]
-shutdown_cmd=systemctl poweroff
-reboot_cmd=systemctl reboot
-EOF
-fi
 
 echo "ly has been configured for Hyprland"
 
