@@ -156,24 +156,28 @@ listview {
 }
 
 element {
-    background-color: $BG_COL;
+    background-color: $BG_LIGHT;
     border-radius: 3px;
     padding: 5px;
     margin: 0px 5px 0px 5px;
+    border: 1px;
+    border-color: $BORDER;
 }
 
 element-text {
-    background-color: $BG_COL;
+    background-color: $BG_LIGHT;
     text-color: $FG_COL;
 }
 
 element-icon {
-    background-color: $BG_COL;
+    background-color: $BG_LIGHT;
     size: 30px;
 }
 
 element selected {
     background-color: $ACCENT;
+    border: 2px;
+    border-color: $BORDER;
 }
 
 element selected element-text {
