@@ -101,6 +101,17 @@ configuration {
     columns: 1;
     padding: 15;
     border-radius: 8;
+    kb-custom-1: "1";
+    kb-custom-2: "2";
+    kb-custom-3: "3";
+    kb-custom-4: "4";
+    kb-custom-5: "5";
+    kb-custom-6: "6";
+    kb-custom-7: "7";
+    kb-custom-8: "8";
+    kb-custom-9: "9";
+    kb-custom-10: "0";
+    kb-accept-custom: "Control+1,Control+2,Control+3,Control+4,Control+5,Control+6,Control+7,Control+8,Control+9,Control+0";
 }
 
 * {
@@ -169,7 +180,7 @@ listview {
 }
 
 element {
-    background-color: @bg-col;
+    background-color: @bg-col-light;
     border-radius: 3px;
     padding: 5px;
     margin: 0px 5px 0px 5px;

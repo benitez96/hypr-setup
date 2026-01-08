@@ -27,6 +27,7 @@ menu() {
 
   if [[ -n "$preselect" ]]; then
     local index
+    # Find index in original options (before numbering)
     index=$(echo -e "$options" | grep -nxF "$preselect" | cut -d: -f1)
     if [[ -n "$index" ]]; then
       # Rofi uses 0-based indexing, and -selected-row flag
@@ -34,7 +35,41 @@ menu() {
     fi
   fi
 
-  echo -e "$options" | rofi -dmenu -i -p "$prompt" -width 295 -lines 15 "${args[@]}" 2>/dev/null
+  # Format options with numbers for display (1:, 2:, etc.)
+  local numbered_options=""
+  local line_num=1
+  while IFS= read -r line; do
+    if [[ -n "$line" ]]; then
+      numbered_options+="$line_num: $line\n"
+      ((line_num++))
+    fi
+  done <<< "$(echo -e "$options")"
+
+  # Remove trailing newline
+  numbered_options="${numbered_options%\\n}"
+
+  # Use rofi with keybindings for numeric selection
+  # Map number keys to select corresponding row (0-based index)
+  args+=(
+    "-kb-custom-1" "1"
+    "-kb-custom-2" "2"
+    "-kb-custom-3" "3"
+    "-kb-custom-4" "4"
+    "-kb-custom-5" "5"
+    "-kb-custom-6" "6"
+    "-kb-custom-7" "7"
+    "-kb-custom-8" "8"
+    "-kb-custom-9" "9"
+    "-kb-custom-10" "0"
+  )
+
+  local result
+  result=$(echo -e "$numbered_options" | rofi -dmenu -i -p "$prompt" -width 295 -lines 15 "${args[@]}" 2>/dev/null)
+  
+  # Extract the original option by removing the number prefix
+  if [[ -n "$result" ]]; then
+    echo "$result" | sed -E 's/^[0-9]+: //'
+  fi
 }
 
 terminal() {
