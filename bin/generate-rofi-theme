@@ -104,14 +104,6 @@ configuration {
 }
 
 * {
-    bg-col:                          $BG_COL;
-    bg-col-light:                    $BG_LIGHT;
-    border-col:                       $BORDER;
-    selected-col:                     $ACCENT;
-    blue:                             $ACCENT;
-    fg-col:                           $FG_COL;
-    fg-col2:                          $FG_COL;
-    grey:                             $FG_COL;
     width:                            600;
     font:                             "JetBrainsMono Nerd Font 10";
 }
@@ -119,25 +111,25 @@ configuration {
 window {
     height: 360px;
     border: 2px;
-    border-color: @border-col;
-    background-color: @bg-col;
+    border-color: $BORDER;
+    background-color: $BG_COL;
 }
 
 mainbox {
-    background-color: @bg-col;
+    background-color: $BG_COL;
 }
 
 inputbar {
     children: [prompt,entry];
-    background-color: @bg-col;
+    background-color: $BG_COL;
     border-radius: 5px;
     padding: 2px;
 }
 
 prompt {
-    background-color: @blue;
+    background-color: $ACCENT;
     padding: 6px;
-    text-color: @bg-col;
+    text-color: $BG_COL;
     border-radius: 3px;
     margin: 20px;
     font: "JetBrainsMono Nerd Font 10";
@@ -149,8 +141,8 @@ textbox-prompt-colon {
 }
 
 entry {
-    background-color: @bg-col;
-    text-color: @fg-col;
+    background-color: $BG_COL;
+    text-color: $FG_COL;
     padding: 6px;
     margin: 20px;
     border-radius: 3px;
@@ -172,7 +164,7 @@ element {
 
 element-text {
     background-color: transparent;
-    text-color: @fg-col;
+    text-color: $FG_COL;
 }
 
 element-icon {
@@ -186,7 +178,7 @@ element selected {
 
 element selected element-text {
     background-color: transparent;
-    text-color: @bg-col;
+    text-color: $BG_COL;
 }
 
 element selected element-icon {
@@ -194,7 +186,7 @@ element selected element-icon {
 }
 
 mode-switcher {
-    background-color: @bg-col;
+    background-color: $BG_COL;
 }
 EOF
 
