@@ -23,13 +23,15 @@ case "$MODE" in
         ;;
       clipboard)
         # Clipboard manager - use cliphist (official package) or wl-clipboard
-        if command -v cliphist &> /dev/null; then
-          # Ensure cliphist daemon is running (cliphist watch runs the daemon)
-          if ! pgrep -f "cliphist watch" > /dev/null; then
-            cliphist watch &
+        if command -v cliphist &> /dev/null && command -v wl-paste &> /dev/null; then
+          # Ensure cliphist daemon is running (wl-paste --watch cliphist store)
+          # Check for the daemon process
+          if ! ps aux | grep -v grep | grep -q "wl-paste --watch cliphist store"; then
+            wl-paste --watch cliphist store &
             sleep 1
           fi
-          exec rofi -modi "clipboard:cliphist list" -show clipboard -run-command 'wl-copy {item}'
+          # Use rofi with cliphist: list items, select with rofi, decode and copy
+          cliphist list | rofi -dmenu | cliphist decode | wl-copy
         elif command -v wl-copy &> /dev/null; then
           # Fallback: simple clipboard with wl-clipboard (no history)
           exec rofi -modi "clipboard:wl-paste" -show clipboard
