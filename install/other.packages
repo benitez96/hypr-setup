@@ -19,5 +19,3 @@ pipewire-pulse
 qt6-wayland
 webp-pixbuf-loader
 wget
-# AUR packages (installed via yay)
-# Removed: greenclip - replaced with cliphist (official package)
