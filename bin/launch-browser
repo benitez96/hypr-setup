@@ -1,6 +1,24 @@
 #!/bin/bash
 
 default_browser=$(xdg-settings get default-web-browser)
+
+# Check if it's a flatpak application
+if [[ $default_browser == com.* ]]; then
+  # Extract the flatpak app ID (e.g., com.brave.Browser from com.brave.Browser.desktop)
+  app_id=$(echo "$default_browser" | sed 's/\.desktop$//')
+  
+  # Determine private flag based on app ID
+  if [[ $app_id =~ (firefox|zen|librewolf|mullvad) ]]; then
+    private_flag="--private-window"
+  elif [[ $app_id =~ edge ]]; then
+    private_flag="--inprivate"
+  else
+    private_flag="--incognito"
+  fi
+  
+  exec setsid uwsm-app -- flatpak run "$app_id" "${@/--private/$private_flag}"
+fi
+
 browser_exec=$(sed -n 's/^Exec=\([^ ]*\).*/\1/p' {~/.local,~/.nix-profile,/usr}/share/applications/$default_browser 2>/dev/null | head -1)
 
 if [[ $browser_exec =~ (firefox|zen|librewolf|mullvad) ]]; then
