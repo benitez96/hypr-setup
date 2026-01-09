@@ -17,32 +17,25 @@ case "$MODE" in
     # Handle mode flag
     case "$2" in
       symbols|emoji)
-        # Emoji picker - requires rofi-emoji or similar
-        if command -v rofi-emoji &> /dev/null; then
-          exec rofi-emoji
-        else
-          # Fallback: use rofi drun mode
-          notify-send "Info" "rofi-emoji not installed. Install with: sudo pacman -S rofi-emoji"
-          exec rofi -show drun
-        fi
+        # Emoji picker - requires rofi-emoji package
+        # rofi-emoji provides a rofi mode
+        exec rofi -modi emoji -show emoji
         ;;
       clipboard)
-        # Clipboard manager - use greenclip (from AUR)
-        if command -v greenclip &> /dev/null; then
-          # Ensure greenclip daemon is running
-          if ! pgrep -x greenclip > /dev/null; then
-            greenclip daemon &
+        # Clipboard manager - use cliphist (official package) or wl-clipboard
+        if command -v cliphist &> /dev/null; then
+          # Ensure cliphist daemon is running (cliphist watch runs the daemon)
+          if ! pgrep -f "cliphist watch" > /dev/null; then
+            cliphist watch &
             sleep 1
           fi
-          exec rofi -modi "clipboard:greenclip print" -show clipboard -run-command '{cmd}'
+          exec rofi -modi "clipboard:cliphist list" -show clipboard -run-command 'wl-copy {item}'
+        elif command -v wl-copy &> /dev/null; then
+          # Fallback: simple clipboard with wl-clipboard (no history)
+          exec rofi -modi "clipboard:wl-paste" -show clipboard
         else
-          # Fallback: simple clipboard with rofi and xclip/xsel
-          if command -v xclip &> /dev/null; then
-            exec rofi -modi "clipboard:xclip -selection clipboard -o" -show clipboard
-          else
-            notify-send "Info" "Install greenclip (AUR) or xclip for clipboard manager"
-            exec rofi -show drun
-          fi
+          notify-send "Info" "Install cliphist for clipboard manager: sudo pacman -S cliphist"
+          exec rofi -show drun
         fi
         ;;
       *)

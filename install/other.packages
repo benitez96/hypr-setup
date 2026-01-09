@@ -20,4 +20,4 @@ qt6-wayland
 webp-pixbuf-loader
 wget
 # AUR packages (installed via yay)
-greenclip
+# Removed: greenclip - replaced with cliphist (official package)
