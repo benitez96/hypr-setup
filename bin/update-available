@@ -1,23 +1,51 @@
 #!/bin/bash
 
-# Get remote tag
-latest_tag=$(git -C "$HYPR_SETUP_PATH" ls-remote --tags origin | grep -v "{}" | awk '{print $2}' | sed 's#refs/tags/##' | sort -V | tail -n 1)
-if [[ -z "$latest_tag" ]]; then
-  echo "Error: Could not retrieve latest tag."
-  exit 1
+# Check for available package updates (pacman, AUR, flatpak)
+# Returns exit code 0 if updates are available, 1 if up to date
+
+updates_available=false
+update_count=0
+
+# Check pacman updates
+if command -v checkupdates &>/dev/null; then
+  pacman_updates=$(checkupdates 2>/dev/null | wc -l)
+  if [[ $pacman_updates -gt 0 ]]; then
+    updates_available=true
+    update_count=$((update_count + pacman_updates))
+  fi
+elif sudo pacman -Sy &>/dev/null; then
+  pacman_updates=$(pacman -Qu 2>/dev/null | wc -l)
+  if [[ $pacman_updates -gt 0 ]]; then
+    updates_available=true
+    update_count=$((update_count + pacman_updates))
+  fi
 fi
 
-# Get local tag
-current_tag=$(git -C "$HYPR_SETUP_PATH" describe --tags $(git -C "$HYPR_SETUP_PATH" rev-list --tags --max-count=1))
-if [[ -z "$current_tag" ]]; then
-  echo "Error: Could not retrieve current tag."
-  exit 1
+# Check AUR updates (yay)
+if command -v yay &>/dev/null && pacman -Qem &>/dev/null; then
+  if pkg-aur-accessible &>/dev/null; then
+    aur_updates=$(yay -Qua 2>/dev/null | wc -l)
+    if [[ $aur_updates -gt 0 ]]; then
+      updates_available=true
+      update_count=$((update_count + aur_updates))
+    fi
+  fi
 fi
 
-if [[ "$current_tag" != "$latest_tag" ]]; then
-  echo "Omarchy update available ($latest_tag)"
+# Check flatpak updates
+if command -v flatpak &>/dev/null; then
+  if flatpak list &>/dev/null && [[ -n $(flatpak list 2>/dev/null) ]]; then
+    flatpak_updates=$(flatpak remote-ls --updates 2>/dev/null | wc -l)
+    if [[ $flatpak_updates -gt 0 ]]; then
+      updates_available=true
+      update_count=$((update_count + flatpak_updates))
+    fi
+  fi
+fi
+
+if [[ "$updates_available" == "true" ]]; then
+  echo "Update available ($update_count packages)"
   exit 0
 else
-  echo "Omarchy is up to date ($current_tag)"
   exit 1
 fi

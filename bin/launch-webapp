@@ -2,6 +2,13 @@
 
 browser=$(xdg-settings get default-web-browser)
 
+# Check if it's a flatpak application
+if [[ $browser == com.* ]]; then
+  # Extract the flatpak app ID (e.g., com.brave.Browser from com.brave.Browser.desktop)
+  app_id=$(echo "$browser" | sed 's/\.desktop$//')
+  exec setsid uwsm-app -- flatpak run "$app_id" --app="$1" "${@:2}"
+fi
+
 case $browser in
 google-chrome* | brave-browser* | microsoft-edge* | opera* | vivaldi* | helium*) ;;
 *) browser="chromium.desktop" ;;
