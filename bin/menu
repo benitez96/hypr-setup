@@ -88,7 +88,9 @@ show_learn_menu() {
 }
 
 show_capture_menu() {
-  case $(menu "Capture" "  Screenshot\n󰃉  Color") in
+  case $(menu "Capture" "󰨸  Clipboard\n😀  Emoji\n  Screenshot\n󰃉  Color") in
+  *Clipboard*) launch-rofi -m clipboard ;;
+  *Emoji*) launch-rofi -m emoji ;;
   *Screenshot*) show_screenshot_menu ;;
   *Color*) pkill hyprpicker || hyprpicker -a ;;
   *) show_main_menu ;;
@@ -219,7 +221,8 @@ show_remove_menu() {
 }
 
 show_update_menu() {
-  case $(menu "Update" "  Process\n󰇅  Hardware\n  Firmware\n  Password\n  Timezone\n  Time") in
+  case $(menu "Update" "󰏖  System\n  Process\n󰇅  Hardware\n  Firmware\n  Password\n  Timezone\n  Time") in
+  *System*) present_terminal update ;;
   *Process*) show_update_process_menu ;;
   *Hardware*) show_update_hardware_menu ;;
   *Firmware*) present_terminal update-firmware ;;
