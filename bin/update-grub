@@ -1,0 +1,25 @@
+#!/bin/bash
+
+set -e
+
+# -----------------------------------------------------------------------------
+# Reconfigure GRUB after firmware update
+#
+# Why this exists:
+# - After updating firmware, /boot mount may fail
+# - This can cause GRUB to not update correctly
+# - This script reconfigures GRUB to ensure it's up to date
+# -----------------------------------------------------------------------------
+
+echo -e "\e[32m\nReconfiguring GRUB...\e[0m"
+
+# Check if GRUB is installed
+if ! command -v grub-mkconfig &>/dev/null; then
+  echo -e "\e[33mGRUB is not installed, skipping reconfiguration.\e[0m"
+  exit 0
+fi
+
+# Regenerate GRUB configuration
+sudo grub-mkconfig -o /boot/grub/grub.cfg
+
+echo -e "\e[32m✓ GRUB reconfigured successfully.\e[0m"

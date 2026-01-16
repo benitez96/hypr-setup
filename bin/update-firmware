@@ -8,4 +8,22 @@ if cmd-missing fwupdmgr; then
 fi
 
 fwupdmgr refresh
+
+# Update firmware - some exit codes are normal (0=success, 2=no updates available)
+# Temporarily disable set -e to handle these codes
+set +e
 sudo fwupdmgr update
+UPDATE_EXIT_CODE=$?
+set -e
+
+# After updating firmware, /boot mount may fail
+# Reconfigure GRUB to ensure it's up to date
+# Only reconfigure if update was successful (0) or no updates available (2)
+if [ $UPDATE_EXIT_CODE -eq 0 ] || [ $UPDATE_EXIT_CODE -eq 2 ]; then
+  echo
+  update-grub || {
+    echo -e "\e[33mWarning: Could not reconfigure GRUB. You may need to do it manually.\e[0m"
+  }
+elif [ $UPDATE_EXIT_CODE -ne 0 ]; then
+  echo -e "\e[33mWarning: Firmware update failed or was cancelled (exit code: $UPDATE_EXIT_CODE).\e[0m"
+fi

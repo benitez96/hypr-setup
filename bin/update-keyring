@@ -1,14 +1,25 @@
 #!/bin/bash
 
+set -e
+
 # Ensure we have the keyring package installed and populate it with Arch Linux master keys
-if pkg-missing keyring; then
+if pkg-missing archlinux-keyring; then
   # This is generally not a good idea, but this is a special case because we're going to be updating
   # the full set of packages in update-system-pkgs right after this (and it needs latest keyring)!
   sudo pacman -Sy
-  pkg-add keyring
+  pkg-add archlinux-keyring
 fi
 
 # Populate keyring with all Arch Linux master keys (automatically imports all necessary keys)
 # This is the standard Arch Linux method and doesn't require hardcoding specific key IDs
 # It will import all keys from the installed keyring package
-sudo pacman-key --populate archlinux
+if ! sudo pacman-key --populate archlinux 2>/dev/null; then
+  echo -e "\e[33mKeyring appears to be outdated. Attempting full recovery...\e[0m"
+  pkg-update-keyring
+else
+  # If populate worked, try updating keyring normally
+  if ! sudo pacman -Sy archlinux-keyring --noconfirm 2>/dev/null; then
+    echo -e "\e[33mError updating keyring. Attempting full recovery...\e[0m"
+    pkg-update-keyring
+  fi
+fi

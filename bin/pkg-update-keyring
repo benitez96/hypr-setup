@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# -----------------------------------------------------------------------------
+# Arch Linux keyring recovery + full system upgrade
+#
+# Why this exists:
+# - If you don't update for a while, pacman may fail with PGP signature errors.
+# - The most common fix is to re-initialize/populate pacman's keyring and ensure
+#   archlinux-keyring is up to date, then perform a full system upgrade.
+#
+# Notes:
+# - Using `pacman -Sy` is generally discouraged (partial upgrades).
+#   The only acceptable exception is syncing the DB *only* to install/update
+#   archlinux-keyring, immediately followed by `pacman -Syu`.
+# -----------------------------------------------------------------------------
+
+echo -e "\e[32m\nRecovering Arch Linux keyring...\e[0m"
+
+# 1) Ensure pacman's keyring is initialized (safe to run multiple times).
+#    If your keyring is already initialized, pacman-key will typically say so.
+echo "Initializing pacman keyring..."
+sudo pacman-key --init || {
+  echo -e "\e[31mError: Failed to initialize pacman keyring\e[0m" >&2
+  exit 1
+}
+
+# 2) Populate keyring with Arch Linux master keys from the keyring package.
+#    This imports all required master keys (no hardcoded key IDs).
+echo "Populating keyring with Arch Linux master keys..."
+sudo pacman-key --populate archlinux || {
+  echo -e "\e[31mError: Failed to populate keyring\e[0m" >&2
+  exit 1
+}
+
+# 3) Make sure the keyring package is present and current enough.
+#    This is the only place we allow `-Sy` (sync DB without upgrading),
+#    because we immediately do a full upgrade right after.
+#    If you are very out of date, updating archlinux-keyring first often fixes
+#    signature verification for the rest of the upgrade.
+echo "Updating archlinux-keyring..."
+sudo pacman -Sy --noconfirm archlinux-keyring || {
+  echo -e "\e[31mError: Failed to update archlinux-keyring\e[0m" >&2
+  exit 1
+}
+
+# 4) Now perform a full system upgrade to return to a consistent state.
+echo "Performing full system upgrade..."
+sudo pacman -Syu --noconfirm || {
+  echo -e "\e[31mError: System upgrade failed\e[0m" >&2
+  exit 1
+}
+
+echo -e "\e[32m✓ Keyring refreshed and system upgraded successfully.\e[0m"

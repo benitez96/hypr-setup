@@ -60,7 +60,9 @@
     "on-click": "launch-or-focus-tui btop",
     "on-click-right": "alacritty"
   },
-  "clock": {
+    "clock": {
+    "interval": 1,
+    "timezone": "localtime",
     "format": "{:L%A %H:%M}",
     "format-alt": "{:L%d %B W%V %Y}",
     "tooltip": false,

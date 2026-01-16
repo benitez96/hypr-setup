@@ -1,6 +1,7 @@
 # Hypr Setup path
 export HYPR_SETUP_PATH=${HYPR_SETUP_PATH:-$HOME/.local/share/hypr}
 export PATH=$HYPR_SETUP_PATH/bin:$PATH
+export PATH=$HOME/.local/bin:$PATH
 
 # Editor used by CLI
 export SUDO_EDITOR="$EDITOR"
