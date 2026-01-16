@@ -1,71 +1,61 @@
 return {
   {
-    "williamboman/mason.nvim",
-    lazy = false,
-    config = function()
-      require("mason").setup()
-    end,
-  },
-  {
-    "williamboman/mason-lspconfig.nvim",
-    lazy = false,
-    opts = {
-      auto_install = true,
-    },
-  },
-  {
     "neovim/nvim-lspconfig",
     lazy = false,
     config = function()
-      local cmp_nvim_lsp = require("cmp_nvim_lsp")
+      local cmp_ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
       local capabilities = vim.tbl_deep_extend(
         "force",
         {},
         vim.lsp.protocol.make_client_capabilities(),
-        cmp_nvim_lsp.default_capabilities()
+        cmp_ok and cmp_nvim_lsp.default_capabilities() or {}
       )
 
-      local lspconfig = require("lspconfig")
+      capabilities.textDocument.colorProvider = { dynamicRegistration = true }
 
-      lspconfig.gopls.setup({
+      -- Configs (antes: lspconfig.<server>.setup)
+      vim.lsp.config("gopls", {
         capabilities = capabilities,
-        cmd = { "gopls" }
+        cmd = { "gopls" },
       })
 
-      lspconfig.tailwindcss.setup({
-        capabilities = capabilities
+      vim.lsp.config("tailwindcss", {
+        capabilities = capabilities,
       })
-      lspconfig.ts_ls.setup {
-        -- filetypes = { "javascript", "javascriptreact", "javascript.jsx", "typescript", "typescriptreact", "typescript.tsx" },
+
+      vim.lsp.config("ts_ls", {
         cmd = { "typescript-language-server", "--stdio" },
-        capabilities = capabilities
-      }
-      -- lspconfig.ruby_lsp.setup({
-      --   capabilities = capabilities,
-      --   cmd = { "/home/typecraft/.asdf/shims/ruby-lsp" }
-      -- })
-      lspconfig.lua_ls.setup({
-        capabilities = capabilities
+        capabilities = capabilities,
       })
 
-      capabilities.textDocument.colorProvider = {
-        dynamicRegistration = true
-      }
-      vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
-        vim.lsp.diagnostic.on_publish_diagnostics, {
-          underline = true,
-          update_in_insert = false,
-          virtual_text = { spacing = 4, prefix = "●" },
-          severity_sort = true,
-        }
-      )
+      vim.lsp.config("lua_ls", {
+        capabilities = capabilities,
+      })
 
-      vim.keymap.set("n", "K", vim.lsp.buf.hover, {})
-      vim.keymap.set("n", "<leader>gd", vim.lsp.buf.definition, {})
-      vim.keymap.set("n", "<leader>gr", vim.lsp.buf.references, {})
-      vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, {})
-      vim.keymap.set("n", "<leader>gf", vim.lsp.buf.format, {})
-      vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, {})
+      vim.lsp.enable("gopls")
+      vim.lsp.enable("tailwindcss")
+      vim.lsp.enable("ts_ls")
+      vim.lsp.enable("lua_ls")
+
+      vim.diagnostic.config({
+        underline = true,
+        update_in_insert = false,
+        virtual_text = { spacing = 4, prefix = "●" },
+        severity_sort = true,
+      })
+
+      -- Recomendación: mapear en LspAttach para que sea por-buffer y sólo cuando haya LSP
+      vim.api.nvim_create_autocmd("LspAttach", {
+        callback = function(args)
+          local opts = { buffer = args.buf }
+          vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+          vim.keymap.set("n", "<leader>gd", vim.lsp.buf.definition, opts)
+          vim.keymap.set("n", "<leader>gr", vim.lsp.buf.references, opts)
+          vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
+          vim.keymap.set("n", "<leader>gf", function() vim.lsp.buf.format({ async = true }) end, opts)
+          vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
+        end,
+      })
     end,
-  },
+  }
 }
