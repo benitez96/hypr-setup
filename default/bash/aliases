@@ -32,6 +32,8 @@ alias ....='cd ../../..'
 
 # Tools
 alias d='docker'
+alias dc='docker compose'
+alias cat='bat'
 n() { if [ "$#" -eq 0 ]; then nvim .; else nvim "$@"; fi; }
 
 # Git

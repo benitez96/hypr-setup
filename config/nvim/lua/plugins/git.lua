@@ -65,5 +65,14 @@ return{
       if not status then return end
       -- Additional configuration for vim-fugitive can be added here
     end
+  },
+  {
+    "kdheepak/lazygit.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+    },
+    keys = {
+      { "<leader>gg", "<cmd>LazyGit<CR>", desc = "LazyGit" },
+    },
   }
 }
