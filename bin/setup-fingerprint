@@ -53,12 +53,12 @@ EOF
 
 add_hyprlock_fingerprint_icon() {
   print_info "Adding fingerprint icon to hyprlock placeholder text..."
-  sed -i 's/placeholder_text = .*/placeholder_text = <span> Enter Password 󰈷 <\/span>/' ~/.config/hypr/hyprlock.conf
+  sed -i --follow-symlinks 's/placeholder_text = .*/placeholder_text = <span> Enter Password 󰈷 <\/span>/' ~/.config/hypr/hyprlock.conf
 }
 
 remove_hyprlock_fingerprint_icon() {
   print_info "Removing fingerprint icon from hyprlock placeholder text..."
-  sed -i 's/placeholder_text = .*/placeholder_text = Enter Password/' ~/.config/hypr/hyprlock.conf
+  sed -i --follow-symlinks 's/placeholder_text = .*/placeholder_text = Enter Password/' ~/.config/hypr/hyprlock.conf
 }
 
 remove_pam_config() {

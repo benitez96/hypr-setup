@@ -23,33 +23,27 @@ focused=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true).name')
 terminal=$(xdg-terminal-exec --print-id)
 
 for m in $(hyprctl monitors -j | jq -r '.[] | .name'); do
-  hyprctl dispatch focusmonitor $m
+  hypr-dispatch "hl.dsp.focus({ monitor = '$m' })" "focusmonitor $m"
 
   case $terminal in
   *Alacritty*)
-    hyprctl dispatch exec -- \
-      alacritty --class=org.hypr.screensaver \
-      --config-file "$HYPR_SETUP_PATH/default/alacritty/screensaver.toml" \
-      -e cmd-screensaver
+    cmd="alacritty --class=org.hypr.screensaver --config-file $HYPR_SETUP_PATH/default/alacritty/screensaver.toml -e cmd-screensaver"
     ;;
   *ghostty*)
-    hyprctl dispatch exec -- \
-      ghostty --class=org.hypr.screensaver \
-      --config-file="$HYPR_SETUP_PATH/default/ghostty/screensaver" \
-      --font-size=18 \
-      -e cmd-screensaver
+    cmd="ghostty --class=org.hypr.screensaver --config-file=$HYPR_SETUP_PATH/default/ghostty/screensaver --font-size=18 -e cmd-screensaver"
     ;;
   *kitty*)
-    hyprctl dispatch exec -- \
-      kitty --class=org.hypr.screensaver \
-      --override font_size=18 \
-      --override window_padding_width=0 \
-      -e cmd-screensaver
+    cmd="kitty --class=org.hypr.screensaver --override font_size=18 --override window_padding_width=0 -e cmd-screensaver"
     ;;
   *)
+    cmd=""
     notify-send "✋  Screensaver only runs in Alacritty, Ghostty, or Kitty"
     ;;
   esac
+
+  if [[ -n $cmd ]]; then
+    hypr-dispatch "hl.dsp.exec_cmd([[$cmd]])" "exec -- $cmd"
+  fi
 done
 
-hyprctl dispatch focusmonitor $focused
+hypr-dispatch "hl.dsp.focus({ monitor = '$focused' })" "focusmonitor $focused"

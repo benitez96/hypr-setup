@@ -23,6 +23,13 @@ user_config_file="${HOME}/.config/$config_file"
 default_config_file="$HYPR_SETUP_PATH/config/$config_file"
 backup_config_file="$user_config_file.bak.$(date +%s)"
 
+# Hyprland configs are symlinked straight into the repo (see bin/link-hypr-config),
+# so there is nothing to refresh: the file already *is* the repo file.
+if [[ -L "$user_config_file" && "$(readlink -f "$user_config_file")" == "$(readlink -f "$default_config_file")" ]]; then
+  echo "$config_file is a symlink to $default_config_file -- already up to date."
+  exit 0
+fi
+
 if [[ -f "$user_config_file" ]]; then
   # Create preliminary backup
   cp -f "$user_config_file" "$backup_config_file" 2>/dev/null

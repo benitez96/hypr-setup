@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# Makes ~/.config/hypr a set of symlinks into this repo, so there is exactly one
+# copy of every Hyprland config file and the whole setup stays in git.
+#
+#   ~/.config/hypr/hyprland.lua -> ~/.local/share/hypr/config/hypr/hyprland.lua
+#
+# Idempotent: run it whenever a new file is added to config/hypr/.
+# Any pre-existing regular file is backed up as <name>.bak.<timestamp> unless it
+# is already identical to the repo version.
+
+set -euo pipefail
+
+HYPR_SETUP_PATH="${HYPR_SETUP_PATH:-$HOME/.local/share/hypr}"
+
+# Hyprland's env keyword does not expand ~, so HYPR_SETUP_PATH can reach us as a
+# literal "~/.local/share/hypr" in child processes
+HYPR_SETUP_PATH="${HYPR_SETUP_PATH/#\~/$HOME}"
+
+source_dir="$HYPR_SETUP_PATH/config/hypr"
+target_dir="$HOME/.config/hypr"
+
+if [[ ! -d "$source_dir" ]]; then
+  echo "link-hypr-config: $source_dir not found" >&2
+  exit 1
+fi
+
+mkdir -p "$target_dir"
+
+for source in "$source_dir"/*; do
+  [[ -f "$source" ]] || continue
+
+  name=$(basename "$source")
+  target="$target_dir/$name"
+
+  # Already linked where it should be
+  if [[ -L "$target" && "$(readlink -f "$target")" == "$(readlink -f "$source")" ]]; then
+    continue
+  fi
+
+  if [[ -e "$target" && ! -L "$target" ]]; then
+    if cmp -s "$target" "$source"; then
+      rm -f "$target"
+    else
+      backup="$target.bak.$(date +%s)"
+      mv "$target" "$backup"
+      echo "backed up $name -> $(basename "$backup")"
+    fi
+  fi
+
+  ln -nsf "$source" "$target"
+  echo "linked $name"
+done

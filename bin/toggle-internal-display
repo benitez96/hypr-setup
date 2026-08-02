@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Toggles the built-in laptop panel on/off (same as SUPER + SHIFT + M).
+#
+# The logic itself lives in config/hypr/monitors.lua so the keybinding, this
+# script and any menu entry all share one implementation -- including
+# remembering the choice across config reloads and monitor hotplugs.
+
+case "$1" in
+on)  call="hypr_set_internal_display(true)" ;;
+off) call="hypr_set_internal_display(false)" ;;
+"")  call="hypr_toggle_internal_display()" ;;
+*)
+  echo "Usage: $(basename "$0") [on|off]"
+  exit 1
+  ;;
+esac
+
+if ! output=$(hyprctl eval "$call" 2>&1); then
+  echo "$output" >&2
+  exit 1
+fi
+
+# hyprctl eval only works with the Lua config manager
+if [[ "$output" == *"only supported with the lua config"* ]]; then
+  echo "$output" >&2
+  echo "Hint: this session was started from hyprland.conf. Log out and back in to pick up hyprland.lua." >&2
+  exit 1
+fi

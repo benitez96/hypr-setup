@@ -3,8 +3,20 @@
 workspace_id=$(hyprctl activeworkspace -j | jq -r .id)
 gaps=$(hyprctl workspacerules -j | jq -r ".[] | select(.workspaceString==\"$workspace_id\") | .gapsOut[0] // 0")
 
+set_workspace_gaps() {
+  # `hyprctl keyword` is rejected by the Lua config manager, so set the rule
+  # through the Lua API and keep the legacy call as a fallback.
+  local gaps_out=$1 gaps_in=$2 border=$3
+
+  if hyprctl eval "return true" 2>&1 | grep -q "only supported with the lua config"; then
+    hyprctl keyword "workspace $workspace_id, gapsout:$gaps_out, gapsin:$gaps_in, bordersize:$border"
+  else
+    hyprctl eval "hl.workspace_rule({ workspace = '$workspace_id', gaps_out = $gaps_out, gaps_in = $gaps_in, border_size = $border })"
+  fi
+}
+
 if [[ $gaps == "0" ]]; then
-  hyprctl keyword "workspace $workspace_id, gapsout:10, gapsin:5, bordersize:2"
-else \
-  hyprctl keyword "workspace $workspace_id, gapsout:0, gapsin:0, bordersize:0"
+  set_workspace_gaps 10 5 2
+else
+  set_workspace_gaps 0 0 0
 fi

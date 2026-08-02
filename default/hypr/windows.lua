@@ -1,0 +1,36 @@
+-- See https://wiki.hypr.land/Configuring/Basics/Window-Rules/
+local L = ...
+
+-- Suppress maximize events for all windows
+hl.window_rule({
+    name  = "suppress-maximize",
+    match = { class = ".*" },
+
+    suppress_event = "maximize",
+})
+
+-- Just a dash of opacity by default
+hl.window_rule({
+    name  = "default-opacity",
+    match = { class = ".*" },
+
+    opacity = "0.97 0.9",
+})
+
+-- Fix some dragging issues with XWayland
+hl.window_rule({
+    name  = "fix-xwayland-drags",
+    match = {
+        class      = "^$",
+        title      = "^$",
+        xwayland   = true,
+        float      = true,
+        fullscreen = false,
+        pin        = false,
+    },
+
+    no_focus = true,
+})
+
+-- App-specific tweaks
+L.source("default/hypr/apps/init.lua")

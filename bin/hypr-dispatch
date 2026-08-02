@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# Dispatches a Hyprland action from a script, working with either config format.
+#
+#   hypr-dispatch "hl.dsp.focus({ workspace = 1 })" "workspace 1"
+#                  \_ Lua form (0.56+)              \_ legacy form
+#
+# Why: with a Lua config, `hyprctl dispatch workspace 1` is parsed as Lua and
+# fails ("dispatch in lua is a shorthand for hl.dispatch(...)"), while with a
+# .conf config the Lua form is not understood either. Scripts call this instead
+# of hyprctl so they keep working through the migration.
+#
+# Hyprland 0.57 drops the .conf format: at that point the second argument and
+# the fallback below can be deleted.
+
+lua_form=$1
+legacy_form=$2
+
+if [[ -z "$lua_form" ]]; then
+  echo "Usage: $(basename "$0") <lua-dispatcher> [legacy-dispatcher]" >&2
+  exit 1
+fi
+
+if hyprctl eval "return true" 2>&1 | grep -q "only supported with the lua config"; then
+  if [[ -z "$legacy_form" ]]; then
+    echo "$(basename "$0"): no legacy form given for: $lua_form" >&2
+    exit 1
+  fi
+
+  # Legacy dispatchers are space-separated arguments, so this must stay unquoted
+  # shellcheck disable=SC2086
+  exec hyprctl dispatch $legacy_form
+fi
+
+exec hyprctl dispatch "$lua_form"

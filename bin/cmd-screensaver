@@ -4,8 +4,18 @@ screensaver_in_focus() {
   hyprctl activewindow -j | jq -e '.class == "org.hypr.screensaver"' >/dev/null 2>&1
 }
 
+# `hyprctl keyword` is rejected by the Lua config manager, so go through the
+# Lua API there and keep the legacy call as a fallback.
+set_cursor_invisible() {
+  if hyprctl eval "return true" 2>&1 | grep -q "only supported with the lua config"; then
+    hyprctl keyword cursor:invisible "$1"
+  else
+    hyprctl eval "hl.config({ cursor = { invisible = $1 } })"
+  fi
+}
+
 exit_screensaver() {
-  hyprctl keyword cursor:invisible false
+  set_cursor_invisible false
   pkill -x tte 2>/dev/null
   pkill -f org.hypr.screensaver 2>/dev/null
   exit 0
@@ -18,7 +28,7 @@ while read -rsn1 -t 0.1; do :; done # Flush any pending input
 
 printf '\033]11;rgb:00/00/00\007'  # Set background color to black
 
-hyprctl keyword cursor:invisible true &>/dev/null
+set_cursor_invisible true &>/dev/null
 
 tty=$(tty 2>/dev/null)
 
