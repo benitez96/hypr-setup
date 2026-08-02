@@ -34,7 +34,9 @@ alias ....='cd ../../..'
 alias d='docker'
 alias dc='docker compose'
 alias cat='bat'
-n() { if [ "$#" -eq 0 ]; then nvim .; else nvim "$@"; fi; }
+v() { if [ "$#" -eq 0 ]; then nvim .; else nvim "$@"; fi; }
+e() { evince "$@" >/dev/null 2>&1 & }
+cte() { setsid nautilus "${1:-.}" >/dev/null 2>&1 < /dev/null & exit; }
 
 # Git
 alias g='git'
@@ -42,3 +44,4 @@ alias lg='lazygit'
 alias gcm='git commit -m'
 alias gcam='git commit -a -m'
 alias gcad='git commit -a --amend'
+alias n='nautilus . &'

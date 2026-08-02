@@ -1,0 +1,268 @@
+#!/bin/bash
+
+# emit-double — combine several audio outputs into one (multi-speaker)
+# Creates a PipeWire/PulseAudio module-combine-sink to play on 2+ sinks
+# at once (e.g. two Bluetooth speakers simultaneously).
+#
+# Per-device latency offsets (to fix out-of-sync speakers) are stored in
+# ~/.double-audio-config and re-applied automatically on every connect.
+#
+# Usage:
+#   emit-double           TUI menu (connect / sync / off / status)
+#   emit-double --connect interactive output selection
+#   emit-double --sync    calibrate per-speaker latency offset
+#   emit-double --off     remove the combined output
+#   emit-double --status  show current status
+
+set -euo pipefail
+
+SINK_NAME="bt_dual"
+DESCRIPTION="Double output"
+CONFIG_FILE="$HOME/.double-audio-config"
+
+for dep in gum pactl jq; do
+  command -v "$dep" >/dev/null 2>&1 || { echo "Missing dependency: $dep" >&2; exit 1; }
+done
+
+# ID of the active module-combine-sink with our sink_name (empty if none)
+current_module_id() {
+  pactl list short modules \
+    | awk -v n="sink_name=$SINK_NAME" '$2=="module-combine-sink" && $0 ~ n {print $1; exit}'
+}
+
+remove_combine() {
+  local id
+  id="$(current_module_id)"
+  if [ -n "$id" ]; then
+    pactl unload-module "$id"
+    return 0
+  fi
+  return 1
+}
+
+# --- latency offset persistence (~/.double-audio-config) --------------------
+
+# Output port of a card that belongs to its active profile (dynamic)
+card_output_port() {
+  local card="$1" active
+  active="$(pactl list cards | awk -v c="$card" '
+    /^Card #/ {i=0} $1=="Name:" && $2==c {i=1}
+    i && /Active Profile:/ {sub(/.*Active Profile: /,""); print; exit}')"
+  pactl list cards | awk -v c="$card" -v ap="$active" '
+    /^Card #/ {i=0} $1=="Name:" && $2==c {i=1}
+    i && /latency offset/ {port=$1; sub(/:$/,"",port)}
+    i && /Part of profile/ && index($0, ap) && port ~ /output/ {print port; exit}'
+}
+
+get_saved_offset() {
+  [ -f "$CONFIG_FILE" ] || return 0
+  awk -F'\t' -v c="$1" '$1==c {print $3; exit}' "$CONFIG_FILE"
+}
+
+save_offset() {
+  local card="$1" port="$2" off="$3" tmp
+  tmp="$(mktemp)"
+  [ -f "$CONFIG_FILE" ] && awk -F'\t' -v c="$card" '$1!=c' "$CONFIG_FILE" > "$tmp"
+  printf '%s\t%s\t%s\n' "$card" "$port" "$off" >> "$tmp"
+  mv "$tmp" "$CONFIG_FILE"
+}
+
+apply_offsets() {
+  [ -f "$CONFIG_FILE" ] || return 0
+  local card port off
+  while IFS=$'\t' read -r card port off; do
+    [ -z "$card" ] && continue
+    pactl set-port-latency-offset "$card" "$port" "$off" 2>/dev/null || true
+  done < "$CONFIG_FILE"
+}
+
+# --- actions ----------------------------------------------------------------
+
+do_status() {
+  if [ -n "$(current_module_id)" ]; then
+    gum style --foreground 2 "󰓃 Active (sink: $SINK_NAME)"
+  else
+    gum style --foreground 3 "󰓄 Inactive"
+  fi
+}
+
+do_off() {
+  if remove_combine; then
+    gum style --foreground 2 "󰓄 Combined output removed."
+  else
+    gum style --foreground 3 "No combined output is active."
+  fi
+}
+
+do_connect() {
+  # Real sinks (exclude our own combine so we don't nest it)
+  local sinks_json count selected sinks_csv
+  sinks_json="$(pactl -f json list sinks \
+    | jq --arg self "$SINK_NAME" '[.[] | select(.name != $self)]')"
+
+  count="$(echo "$sinks_json" | jq 'length')"
+  if [ "$count" -lt 2 ]; then
+    gum style --foreground 1 "At least 2 audio outputs are needed (found $count)."
+    return 1
+  fi
+
+  # "description\tname" to show nicely and recover the real name
+  local rows=() labels=()
+  declare -A label_to_name
+  mapfile -t rows < <(echo "$sinks_json" | jq -r '.[] | ((.description // .name) + "\t" + .name)')
+  local row desc name
+  for row in "${rows[@]}"; do
+    desc="${row%%$'\t'*}"
+    name="${row#*$'\t'}"
+    labels+=("$desc")
+    label_to_name["$desc"]="$name"
+  done
+
+  selected="$(printf '%s\n' "${labels[@]}" \
+    | gum choose --no-limit --header "Pick 2+ outputs (Space to mark, Enter to confirm):")"
+
+  [ -z "$selected" ] && { gum style --foreground 3 "Cancelled."; return 0; }
+
+  local chosen_names=() line
+  while IFS= read -r line; do
+    [ -z "$line" ] && continue
+    chosen_names+=("${label_to_name[$line]}")
+  done <<< "$selected"
+
+  if [ "${#chosen_names[@]}" -lt 2 ]; then
+    gum style --foreground 1 "Pick at least 2 outputs."
+    return 1
+  fi
+
+  # Replace any previous combine
+  remove_combine >/dev/null 2>&1 || true
+
+  sinks_csv="$(IFS=,; echo "${chosen_names[*]}")"
+  pactl load-module module-combine-sink \
+    sink_name="$SINK_NAME" \
+    sink_properties=device.description="$DESCRIPTION" \
+    sinks="$sinks_csv" \
+    latency_compensate=true >/dev/null
+
+  # Make it the default output and move whatever is already playing
+  pactl set-default-sink "$SINK_NAME"
+  local input
+  for input in $(pactl list short sink-inputs | awk '{print $1}'); do
+    pactl move-sink-input "$input" "$SINK_NAME" 2>/dev/null || true
+  done
+
+  # Re-apply saved per-speaker latency offsets
+  apply_offsets
+
+  gum style --foreground 2 "󰓃 Now playing on ${#chosen_names[@]} outputs at once."
+}
+
+do_sync() {
+  # Pick a speaker to offset (only sinks that map to a card)
+  local sinks_json line desc card port picked labels=() rows=()
+  declare -A label_to_card
+  sinks_json="$(pactl -f json list sinks \
+    | jq --arg self "$SINK_NAME" '[.[] | select(.name != $self) | select(.properties."device.name")]')"
+
+  if [ "$(echo "$sinks_json" | jq 'length')" -eq 0 ]; then
+    gum style --foreground 3 "No devices available to calibrate."
+    return 0
+  fi
+
+  mapfile -t rows < <(echo "$sinks_json" | jq -r '.[] | ((.description // .name) + "\t" + .properties."device.name")')
+  for line in "${rows[@]}"; do
+    desc="${line%%$'\t'*}"
+    card="${line#*$'\t'}"
+    labels+=("$desc")
+    label_to_card["$desc"]="$card"
+  done
+
+  picked="$(printf '%s\n' "${labels[@]}" \
+    | gum choose --header "Which speaker to offset? (play some audio first)")"
+  [ -z "$picked" ] && return 0
+
+  card="${label_to_card[$picked]}"
+  port="$(card_output_port "$card")"
+  if [ -z "$port" ]; then
+    gum style --foreground 1 "Couldn't resolve output port for $card."
+    return 1
+  fi
+
+  local off saved step key
+  step=10000
+  off="$(get_saved_offset "$card")"; off="${off:-0}"
+  pactl set-port-latency-offset "$card" "$port" "$off" 2>/dev/null || true
+
+  while true; do
+    clear
+    gum style --border rounded --padding "0 1" --foreground 4 "󰓃 Sync offset — $picked"
+    gum style "Offset: $(( off / 1000 )) ms  (adjust until both speakers line up)"
+    gum style --faint "k/+ = +10ms · j/- = -10ms · 0 reset · s save · b cancel"
+    IFS= read -rsn1 key
+    case "$key" in
+      k|+|K) off=$(( off + step )) ;;
+      j|-)   off=$(( off - step )) ;;
+      0)     off=0 ;;
+      s)
+        save_offset "$card" "$port" "$off"
+        gum style --foreground 2 "󰓃 Saved: $(( off / 1000 )) ms for $picked."
+        return 0
+        ;;
+      b)
+        saved="$(get_saved_offset "$card")"; saved="${saved:-0}"
+        pactl set-port-latency-offset "$card" "$port" "$saved" 2>/dev/null || true
+        return 0
+        ;;
+      *) continue ;;
+    esac
+    pactl set-port-latency-offset "$card" "$port" "$off" 2>/dev/null || true
+  done
+}
+
+# --- TUI menu ---------------------------------------------------------------
+
+main_menu() {
+  local status action key
+  while true; do
+    clear
+    if [ -n "$(current_module_id)" ]; then status="active"; else status="inactive"; fi
+
+    gum style --border rounded --padding "0 1" --foreground 4 \
+      "󰓃 emit-double — double audio output (status: $status)"
+
+    action="$(gum choose \
+      "󰓃  Connect outputs" \
+      "  Sync offset" \
+      "󰓄  Turn off" \
+      "  Show status" \
+      "  Quit")"
+
+    case "$action" in
+      *Connect*) do_connect ;;
+      *Sync*)    do_sync ;;
+      *off*)     do_off ;;
+      *status*)  do_status ;;
+      *) return 0 ;;
+    esac
+
+    # Result stays on screen; q quits, b goes back to the menu
+    echo
+    gum style --faint "q to quit · b to go back"
+    while IFS= read -rsn1 key; do
+      case "$key" in
+        q) return 0 ;;
+        b) break ;;
+      esac
+    done
+  done
+}
+
+case "${1:-}" in
+  --connect|connect) do_connect ;;
+  --sync|sync)       do_sync ;;
+  --off|off)         do_off ;;
+  --status|status)   do_status ;;
+  -h|--help)         echo "Usage: emit-double [--connect|--sync|--off|--status]" ;;
+  "")                main_menu ;;
+  *) echo "Unknown option: $1" >&2; exit 1 ;;
+esac

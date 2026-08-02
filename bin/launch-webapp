@@ -14,4 +14,7 @@ google-chrome* | brave-browser* | microsoft-edge* | opera* | vivaldi* | helium*)
 *) browser="chromium.desktop" ;;
 esac
 
-exec setsid uwsm-app -- $(sed -n 's/^Exec=\([^ ]*\).*/\1/p' {~/.local,~/.nix-profile,/usr}/share/applications/$browser 2>/dev/null | head -1) --app="$1" "${@:2}"
+exec_line=$(sed -n 's/^Exec=//p' {~/.local,~/.nix-profile,/usr}/share/applications/$browser 2>/dev/null | head -1)
+# Remove %U/%u/%F/%f placeholders but keep env VAR=VALUE pairs intact
+exec_line=$(echo "$exec_line" | sed 's/[[:space:]]*%[A-Za-z]//g')
+exec setsid uwsm-app -- $exec_line --app="$1" "${@:2}"

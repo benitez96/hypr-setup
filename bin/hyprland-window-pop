@@ -30,11 +30,13 @@ if [[ $pinned == "true" ]]; then
   hypr-dispatch "hl.dsp.window.tag({ tag = '-pop', window = 'address:$addr' })" "tagwindow -pop address:$addr"
 elif [[ -n $addr ]]; then
   hypr-dispatch "hl.dsp.window.float({ window = 'address:$addr', action = 'toggle' })" "togglefloating address:$addr"
-  hypr-dispatch "hl.dsp.window.resize({ window = 'address:$addr', x = $width, y = $height, exact = true })" \
+  # No `relative`, so x/y are the exact size (the old `resizeactive exact`)
+  hypr-dispatch "hl.dsp.window.resize({ window = 'address:$addr', x = $width, y = $height })" \
     "resizeactive exact $width $height address:$addr"
 
   if [[ -n $x && -n $y ]]; then
-    hypr-dispatch "hl.dsp.window.move({ window = 'address:$addr', x = $x, y = $y })" "moveactive $x $y address:$addr"
+    # `moveactive x y` was a delta, so this one does need relative
+    hypr-dispatch "hl.dsp.window.move({ window = 'address:$addr', x = $x, y = $y, relative = true })" "moveactive $x $y address:$addr"
   else
     hypr-dispatch "hl.dsp.window.center({ window = 'address:$addr' })" "centerwindow address:$addr"
   fi

@@ -24,6 +24,6 @@ fi
 # hyprctl eval only works with the Lua config manager
 if [[ "$output" == *"only supported with the lua config"* ]]; then
   echo "$output" >&2
-  echo "Hint: this session was started from hyprland.conf. Log out and back in to pick up hyprland.lua." >&2
+  echo "Hint: this session is not using the Lua config. Log out and back in to pick up hyprland.lua." >&2
   exit 1
 fi

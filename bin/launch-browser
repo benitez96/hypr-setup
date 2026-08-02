@@ -19,14 +19,18 @@ if [[ $default_browser == com.* ]]; then
   exec setsid uwsm-app -- flatpak run "$app_id" "${@/--private/$private_flag}"
 fi
 
-browser_exec=$(sed -n 's/^Exec=\([^ ]*\).*/\1/p' {~/.local,~/.nix-profile,/usr}/share/applications/$default_browser 2>/dev/null | head -1)
+exec_line=$(sed -n 's/^Exec=//p' {~/.local,~/.nix-profile,/usr}/share/applications/$default_browser 2>/dev/null | head -1)
+# Remove %U/%u/%F/%f placeholders but keep env VAR=VALUE pairs intact
+exec_line=$(echo "$exec_line" | sed 's/[[:space:]]*%[A-Za-z]//g')
+# Extract just the binary name (skip 'env' and VAR=VALUE pairs) for flag detection
+browser_bin=$(echo "$exec_line" | sed 's/^env\b//; s/[[:space:]]*[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*//g; s/^[[:space:]]*//' | awk '{print $1}')
 
-if [[ $browser_exec =~ (firefox|zen|librewolf|mullvad) ]]; then
+if [[ $browser_bin =~ (firefox|zen|librewolf|mullvad) ]]; then
   private_flag="--private-window"
-elif [[ $browser_exec =~ edge ]]; then
+elif [[ $browser_bin =~ edge ]]; then
   private_flag="--inprivate"
 else
   private_flag="--incognito"
 fi
 
-exec setsid uwsm-app -- "$browser_exec" "${@/--private/$private_flag}"
+exec setsid uwsm-app -- $exec_line "${@/--private/$private_flag}"

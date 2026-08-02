@@ -1,76 +1,73 @@
 return {
+  -- Treesitter - syntax highlighting and more
   {
     "nvim-treesitter/nvim-treesitter",
-    branch = "main",
     build = ":TSUpdate",
-    lazy = false,
-    config = function()
-      local ts = require("nvim-treesitter")
-
-      ts.setup({
-        install_dir = vim.fn.stdpath("data") .. "/site",
-      })
-
-      ts.install({
-        "bash",
-        "html",
-        "css",
-        "scss",
+    event = { "BufReadPre", "BufNewFile" },
+    opts = {
+      ensure_installed = {
+        "lua",
+        "luadoc",
+        "luap",
+        "vim",
+        "vimdoc",
         "javascript",
         "typescript",
         "tsx",
+        "jsdoc",
+        "html",
+        "css",
         "json",
-        "lua",
-        "go",
-      })
-
-      -- 1) Highlighting: lo maneja Neovim, se activa por FileType
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = {
-          "bash",
-          "html",
-          "css",
-          "scss",
-          "javascript",
-          "typescript",
-          "typescriptreact",
-          "tsx",
-          "json",
-          "lua",
-          "go",
+        "yaml",
+        "toml",
+        "markdown",
+        "markdown_inline",
+        "bash",
+        "python",
+        "regex",
+        "query",
+        "gitignore",
+        "dockerfile",
+        "sql",
+      },
+      auto_install = true,
+      highlight = { enable = true },
+      indent = { enable = true },
+      incremental_selection = {
+        enable = true,
+        keymaps = {
+          init_selection = "<C-Space>",
+          node_incremental = "<C-Space>",
+          scope_incremental = false,
+          node_decremental = "<bs>",
         },
-        callback = function()
-          vim.treesitter.start()
-        end,
-      })
+      },
+    },
+  },
 
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = {
-          "lua",
-          "go",
-          "tsx",
-          "typescript",
-        },
-        callback = function()
-          vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
-        end,
-      })
-
-      -- 3) (Opcional) Folds con treesitter (Neovim)
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = {
-          "lua",
-          "go",
-          "javascript",
-          "typescript",
-          "typescriptreact",
-          "tsx",
-        },
-        callback = function()
-          vim.wo.foldmethod = "expr"
-          vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-        end,
-      })
+  -- Treesitter textobjects
+  {
+    "nvim-treesitter/nvim-treesitter-textobjects",
+    lazy = true,
+    config = function()
+      -- Textobjects are now configured via vim.treesitter.query
+      -- This plugin provides the queries, no extra config needed
     end,
+  },
+
+  -- Autotag for HTML/JSX
+  {
+    "windwp/nvim-ts-autotag",
+    event = { "BufReadPre", "BufNewFile" },
+    opts = {},
+  },
+
+  -- Context comment string
+  {
+    "JoosepAlviste/nvim-ts-context-commentstring",
+    lazy = true,
+    opts = {
+      enable_autocmd = false,
+    },
   },
 }

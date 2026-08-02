@@ -21,6 +21,7 @@ L.source_optional("~/.config/hypr/current/theme/hyprland.lua")
 -- 3. Personal configuration
 L.source_all({
     "config/hypr/monitors.lua",
+    "config/hypr/workspaces.lua",
     "config/hypr/input.lua",
     "config/hypr/bindings.lua",
     "config/hypr/looknfeel.lua",

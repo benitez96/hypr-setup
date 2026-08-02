@@ -66,11 +66,8 @@ if [ -n "$(lspci | grep -i 'nvidia')" ]; then
 
   sudo mkinitcpio -P
 
-  # Add NVIDIA environment variables to the active Hyprland config.
-  # The Lua config takes precedence over the .conf one, so write to whichever
-  # Hyprland will actually read.
+  # Add NVIDIA environment variables to the Hyprland config
   HYPRLAND_LUA="$HOME/.config/hypr/hyprland.lua"
-  HYPRLAND_CONF="$HOME/.config/hypr/hyprland.conf"
 
   if [ -f "$HYPRLAND_LUA" ]; then
     cat >>"$HYPRLAND_LUA" <<'EOF'
@@ -79,14 +76,6 @@ if [ -n "$(lspci | grep -i 'nvidia')" ]; then
 hl.env("NVD_BACKEND", "direct")
 hl.env("LIBVA_DRIVER_NAME", "nvidia")
 hl.env("__GLX_VENDOR_LIBRARY_NAME", "nvidia")
-EOF
-  elif [ -f "$HYPRLAND_CONF" ]; then
-    cat >>"$HYPRLAND_CONF" <<'EOF'
-
-# NVIDIA environment variables
-env = NVD_BACKEND,direct
-env = LIBVA_DRIVER_NAME,nvidia
-env = __GLX_VENDOR_LIBRARY_NAME,nvidia
 EOF
   fi
 fi

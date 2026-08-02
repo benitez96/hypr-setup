@@ -4,12 +4,40 @@
 # Usage: pdfmerge input1.pdf input2.pdf ... output.pdf
 
 if [ "$#" -lt 2 ]; then
-  echo "Usage: $0 <input1.pdf> <input2.pdf> ... <output.pdf>"
+  echo "Uso: $0 <input1> <input2> ... <output.pdf>"
   exit 1
 fi
 
 salida="${@: -1}"
 entradas=("${@:1:$#-1}")
 
-gs -dBATCH -dNOPAUSE -dQUIET -q -sDEVICE=pdfwrite -sOutputFile="$salida" "${entradas[@]}"
+tmpdir=$(mktemp -d)
+trap 'rm -rf "$tmpdir"' EXIT
 
+final_inputs=()
+n=0
+
+for f in "${entradas[@]}"; do
+  case "${f,,}" in
+    *.pdf)
+      final_inputs+=("$f")
+      ;;
+    *.jpg|*.jpeg|*.png)
+      tmp_pdf="$tmpdir/img_$n.pdf"
+      img2pdf "$f" -o "$tmp_pdf" || exit 1
+      final_inputs+=("$tmp_pdf")
+      n=$((n+1))
+      ;;
+    *)
+      echo "Formato no soportado: $f"
+      exit 1
+      ;;
+  esac
+done
+
+gs -dBATCH -dNOPAUSE -dQUIET \
+   -sDEVICE=pdfwrite \
+   -sPAPERSIZE=a4 \
+   -dPDFFitPage \
+   -sOutputFile="$salida" \
+   "${final_inputs[@]}"

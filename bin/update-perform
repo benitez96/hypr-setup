@@ -4,7 +4,7 @@ set -e
 
 update-time
 update-keyring
-update-available-reset
 update-system-pkgs
 hook post-update
+update-available-reset
 update-restart
