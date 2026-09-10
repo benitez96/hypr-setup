@@ -33,11 +33,19 @@
 #cpu,
 #battery,
 #pulseaudio,
-#custom-omarchy,
 #custom-screenrecording-indicator,
 #custom-update {
   min-width: 12px;
   margin: 0 7.5px;
+}
+
+/* The logo is a single glyph from a one-off font, so it does not share the
+   12px metrics of the Nerd Font icons around it -- it needs its own size to
+   read as the same visual weight. */
+#custom-hypr {
+  font-size: 14px;
+  min-width: 14px;
+  margin: 0 9px 0 2px;
 }
 
 #tray {

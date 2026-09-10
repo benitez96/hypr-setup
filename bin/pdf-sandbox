@@ -1,0 +1,163 @@
+#!/bin/bash
+
+# Shared jail for the pdf* tools. Ghostscript and img2pdf parse untrusted input
+# with a long history of RCE bugs, so they run inside bubblewrap: no network, no
+# $HOME, a read-only system, a clean environment, and nothing else on disk
+# except the files handed to them. A booby-trapped PDF stays in the jail.
+#
+# Meant to be sourced, not executed:
+#
+#   source "$(dirname "$(readlink -f "$0")")/pdf-sandbox"
+#   staging=$(mktemp -d); trap 'rm -rf "$staging"' EXIT
+#   sandbox_output "$staging"                    # sets $sandbox_out
+#   sandbox_input document.pdf                   # sets $sandbox_path
+#   sandbox_run gs ... -sOutputFile="$sandbox_out/done.pdf" "$sandbox_path"
+#   mv "$staging/done.pdf" final.pdf
+#
+# Inputs are mounted read-only and the result is always staged in a temporary
+# directory, so the tools can never touch the originals or anything around them.
+# Paths resolve to the real ones when the jail is unavailable, so callers work
+# unchanged either way.
+#
+# PDF_SANDBOX=0 forces plain execution on the host.
+# PDF_SANDBOX=1 refuses to run at all when the jail is unavailable.
+# PDF_SANDBOX_MEMORY caps the memory the tools may use (default 2G).
+
+sandbox_binds=()
+sandbox_path=""
+sandbox_out=""
+
+_sandbox_state=""
+_sandbox_inputs=0
+_sandbox_scope=()
+_sandbox_scope_probed=""
+
+# Ceiling for the jail's /tmp. It is a tmpfs, so without this a crafted PDF can
+# fill it and take the machine's RAM down with it.
+_sandbox_tmpfs_size=1073741824
+
+# Whether the jail is usable: bubblewrap installed, unprivileged user
+# namespaces allowed by the kernel, and not disabled through PDF_SANDBOX.
+sandbox_active() {
+  if [[ -z $_sandbox_state ]]; then
+    _sandbox_state=1
+    if [[ ${PDF_SANDBOX:-} != 0 ]] && command -v bwrap >/dev/null 2>&1 &&
+      bwrap --unshare-all --die-with-parent \
+        --ro-bind /usr /usr --symlink usr/lib /lib --symlink usr/lib /lib64 \
+        --proc /proc --dev /dev --tmpfs /tmp /usr/bin/true 2>/dev/null; then
+      _sandbox_state=0
+    elif [[ ${PDF_SANDBOX:-} == 1 ]]; then
+      echo "PDF_SANDBOX=1 but bubblewrap is unavailable, refusing to process untrusted input" >&2
+      exit 1
+    elif [[ ${PDF_SANDBOX:-} != 0 ]]; then
+      echo "Warning: bubblewrap unavailable, processing without isolation (pkg-add bubblewrap)" >&2
+    fi
+  fi
+
+  return "$_sandbox_state"
+}
+
+# Expose an input file to the jail read-only. Sets $sandbox_path to the path the
+# command must use.
+sandbox_input() {
+  local file=$1
+
+  if [[ ! -f $file ]]; then
+    echo "No such file: $file" >&2
+    exit 1
+  fi
+
+  if ! sandbox_active; then
+    sandbox_path=$file
+    return
+  fi
+
+  # Keep the extension: only cosmetic for the tools, but it keeps gs error
+  # messages readable when something goes wrong.
+  local ext=${file##*/}
+  ext=${ext##*.}
+  sandbox_path=$(printf '/in/%02d.%s' "$_sandbox_inputs" "${ext,,}")
+  sandbox_binds+=(--ro-bind "$(readlink -f "$file")" "$sandbox_path")
+  _sandbox_inputs=$((_sandbox_inputs + 1))
+}
+
+# Hand the jail the staging directory results are written to. Sets $sandbox_out
+# to the path the command must write into.
+sandbox_output() {
+  local staging=$1
+
+  if sandbox_active; then
+    sandbox_out=/out
+    sandbox_binds+=(--bind "$(readlink -f "$staging")" /out)
+  else
+    sandbox_out=$staging
+  fi
+}
+
+# Wrap the jail in a systemd scope so a malicious PDF cannot eat the machine.
+# MemorySwapMax=0 is not optional: with swap available MemoryMax alone only
+# pushes the cgroup into swap instead of killing it. Silently skipped when
+# systemd, the session bus or cgroup delegation are missing.
+_sandbox_limits() {
+  [[ -n $_sandbox_scope_probed ]] && return
+  _sandbox_scope_probed=yes
+
+  local args=(
+    systemd-run --user --scope -q --collect
+    -p "MemoryMax=${PDF_SANDBOX_MEMORY:-2G}"
+    -p MemorySwapMax=0
+    -p TasksMax=64
+  )
+
+  command -v systemd-run >/dev/null 2>&1 || return
+  "${args[@]}" /usr/bin/true 2>/dev/null || return
+  _sandbox_scope=("${args[@]}")
+}
+
+sandbox_run() {
+  if ! sandbox_active; then
+    "$@"
+    return
+  fi
+
+  # /etc is not mounted wholesale: only the handful of paths the tools actually
+  # read, when they exist on this system. The fontconfig cache is one of them:
+  # without it fontconfig rescans every font on each run and gs takes ~1.7s
+  # instead of ~0.15s.
+  local support=()
+  local path
+  for path in /etc/ld.so.cache /etc/ld.so.conf /etc/ld.so.conf.d /etc/fonts \
+    /etc/ghostscript /var/cache/fontconfig; do
+    [[ -e $path ]] && support+=(--ro-bind "$path" "$path")
+  done
+
+  _sandbox_limits
+
+  local status=0
+  "${_sandbox_scope[@]}" bwrap \
+    --unshare-all \
+    --die-with-parent \
+    --new-session \
+    --clearenv \
+    --setenv PATH /usr/bin \
+    --setenv HOME /tmp \
+    --setenv TMPDIR /tmp \
+    --ro-bind /usr /usr \
+    --symlink usr/bin /bin \
+    --symlink usr/bin /sbin \
+    --symlink usr/lib /lib \
+    --symlink usr/lib /lib64 \
+    "${support[@]}" \
+    --proc /proc \
+    --dev /dev \
+    --size "$_sandbox_tmpfs_size" --tmpfs /tmp \
+    "${sandbox_binds[@]}" \
+    --chdir "${sandbox_out:-/tmp}" \
+    -- "$@" || status=$?
+
+  if [[ $status == 137 ]]; then
+    echo "Killed: the tools went over ${PDF_SANDBOX_MEMORY:-2G} of memory (raise PDF_SANDBOX_MEMORY)" >&2
+  fi
+
+  return "$status"
+}

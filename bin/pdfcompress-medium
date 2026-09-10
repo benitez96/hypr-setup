@@ -8,7 +8,17 @@ if [ "$#" -ne 2 ]; then
   exit 1
 fi
 
-gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/printer \
-   -dNOPAUSE -dQUIET -dBATCH \
-   -sOutputFile="$2" "$1"
+# Ghostscript never sees anything but the input file. See pdf-sandbox.
+source "$(dirname "$(readlink -f "$0")")/pdf-sandbox"
 
+staging=$(mktemp -d)
+trap 'rm -rf "$staging"' EXIT
+
+sandbox_input "$1"
+sandbox_output "$staging"
+
+sandbox_run gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/printer \
+  -dNOPAUSE -dQUIET -dBATCH -dSAFER \
+  -sOutputFile="$sandbox_out/compressed.pdf" "$sandbox_path" || exit 1
+
+mv "$staging/compressed.pdf" "$2"

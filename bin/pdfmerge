@@ -8,11 +8,16 @@ if [ "$#" -lt 2 ]; then
   exit 1
 fi
 
+# img2pdf and gs never see anything but the input files. See pdf-sandbox.
+source "$(dirname "$(readlink -f "$0")")/pdf-sandbox"
+
 salida="${@: -1}"
 entradas=("${@:1:$#-1}")
 
 tmpdir=$(mktemp -d)
 trap 'rm -rf "$tmpdir"' EXIT
+
+sandbox_output "$tmpdir"
 
 final_inputs=()
 n=0
@@ -20,12 +25,13 @@ n=0
 for f in "${entradas[@]}"; do
   case "${f,,}" in
     *.pdf)
-      final_inputs+=("$f")
+      sandbox_input "$f"
+      final_inputs+=("$sandbox_path")
       ;;
     *.jpg|*.jpeg|*.png)
-      tmp_pdf="$tmpdir/img_$n.pdf"
-      img2pdf "$f" -o "$tmp_pdf" || exit 1
-      final_inputs+=("$tmp_pdf")
+      sandbox_input "$f"
+      sandbox_run img2pdf "$sandbox_path" -o "$sandbox_out/img_$n.pdf" || exit 1
+      final_inputs+=("$sandbox_out/img_$n.pdf")
       n=$((n+1))
       ;;
     *)
@@ -35,9 +41,11 @@ for f in "${entradas[@]}"; do
   esac
 done
 
-gs -dBATCH -dNOPAUSE -dQUIET \
+sandbox_run gs -dBATCH -dNOPAUSE -dQUIET -dSAFER \
    -sDEVICE=pdfwrite \
    -sPAPERSIZE=a4 \
    -dPDFFitPage \
-   -sOutputFile="$salida" \
-   "${final_inputs[@]}"
+   -sOutputFile="$sandbox_out/merged.pdf" \
+   "${final_inputs[@]}" || exit 1
+
+mv "$tmpdir/merged.pdf" "$salida"

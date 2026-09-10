@@ -79,7 +79,12 @@
     }
   },
   "custom/hypr": {
-    "format": "<span font='hypr'>\ue900</span>",
+    // The font file is ~/.local/share/fonts/hypr.ttf, but only the file was
+    // renamed: its internal family name is still "omarchy", and Pango matches
+    // on the family, not the filename. Asking for font='hypr' found nothing and
+    // fell back to a tofu box (the little "E900" square). Check with:
+    //   fc-query --format "%{family}\n" ~/.local/share/fonts/hypr.ttf
+    "format": "<span font='omarchy'>\ue900</span>",
     "on-click": "menu",
     "on-click-right": "xdg-terminal-exec",
     "tooltip-format": "Hypr Setup Menu\n\nSuper + Alt + Space"
