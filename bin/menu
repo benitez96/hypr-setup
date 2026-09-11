@@ -23,6 +23,21 @@ menu() {
   local extra="$3"
   local preselect="$4"
 
+  # Index mode: dump the options of the first menu reached and bail out. All
+  # fallthrough branches (*) are navigation, so nothing gets executed.
+  if [[ -n "$MENU_DUMP_FILE" ]]; then
+    [[ -s "$MENU_DUMP_FILE" ]] || echo -e "$options" >"$MENU_DUMP_FILE"
+    return 0
+  fi
+
+  # Pick mode: answer the first prompt with the entry chosen in the flat list,
+  # so the existing case dispatches the real action.
+  if [[ -n "$MENU_ANSWER_FILE" && -f "$MENU_ANSWER_FILE" ]]; then
+    cat "$MENU_ANSWER_FILE"
+    rm -f "$MENU_ANSWER_FILE"
+    return 0
+  fi
+
   read -r -a args <<<"$extra"
 
   if [[ -n "$preselect" ]]; then
@@ -273,8 +288,103 @@ show_system_menu() {
   esac
 }
 
+# Menus that hold other entries, with the breadcrumb they are reached through.
+# Everything else (the leaves) is discovered from them, so actions stay defined
+# in one place only.
+MENU_TREE=(
+  "|show_root_menu"
+  "Learn|show_learn_menu"
+  "Capture|show_capture_menu"
+  "Capture > Screenshot|show_screenshot_menu"
+  "Toggle|show_toggle_menu"
+  "Style|show_style_menu"
+  "Setup|show_setup_menu"
+  "Setup > Security|show_setup_security_menu"
+  "Setup > Config|show_setup_config_menu"
+  "Install|show_install_menu"
+  "Remove|show_remove_menu"
+  "Update|show_update_menu"
+  "Update > Process|show_update_process_menu"
+  "Update > Hardware|show_update_hardware_menu"
+  "Update > Password|show_update_password_menu"
+  "System|show_system_menu"
+)
+
+# Run a menu function with rofi stubbed out, to capture the options it offers
+dump_menu() {
+  local tmp
+  tmp=$(mktemp)
+  (MENU_DUMP_FILE="$tmp" "$1") >/dev/null 2>&1
+  cat "$tmp"
+  rm -f "$tmp"
+}
+
+# Flat "icon  Path > Entry<TAB>function<TAB>raw option" list of every entry
+build_menu_index() {
+  local entry path func option icon label full
+  local -A seen=()
+
+  for entry in "${MENU_TREE[@]}"; do
+    path="${entry%%|*}"
+    func="${entry#*|}"
+
+    while IFS= read -r option; do
+      [[ -z "$option" ]] && continue
+
+      label="${option##*  }"
+      icon="${option%%  *}"
+      [[ "$icon" == "$option" ]] && icon=""
+
+      full="$label"
+      [[ -n "$path" ]] && full="$path > $label"
+      [[ -n "${seen["$full"]}" ]] && continue
+      seen["$full"]=1
+
+      printf '%s\t%s\t%s\n' "${icon:+$icon  }$full" "$func" "$option"
+    done < <(dump_menu "$func")
+  done
+}
+
+# Run the entry picked in the flat list: feed it back to the menu it belongs to,
+# so that menu's own case runs the real action
+run_menu_entry() {
+  local line="$1"
+  local func option tmp
+
+  func=$(cut -f2 <<<"$line")
+  option=$(cut -f3 <<<"$line")
+  [[ -z "$func" || -z "$option" ]] && return
+
+  tmp=$(mktemp)
+  printf '%s' "$option" >"$tmp"
+  MENU_ANSWER_FILE="$tmp" "$func"
+  rm -f "$tmp"
+}
+
+# Plain top level, without the nested entries. Not shown as such: it is where
+# the top level entries are read from, and where a pick among them is sent back.
+MAIN_MENU_OPTIONS="󰀻  Apps\n󰧑  Learn\n  Capture\n󰔎  Toggle\n  Style\n  Setup\n󰉉  Install\n󰭌  Remove\n  Update\n  About\n  System"
+
+show_root_menu() {
+  go_to_menu "$(menu "Go" "$MAIN_MENU_OPTIONS")"
+}
+
+# Top level: the whole tree, flattened. It opens on the top level entries, and
+# typing filters across every submenu, so "audio" finds "Setup > Audio".
 show_main_menu() {
-  go_to_menu "$(menu "Go" "󰀻  Apps\n󰧑  Learn\n  Capture\n󰔎  Toggle\n  Style\n  Setup\n󰉉  Install\n󰭌  Remove\n  Update\n  About\n  System")"
+  local index choice
+
+  # While indexing, fall back to the plain list, or we would recurse forever
+  if [[ -n "$MENU_DUMP_FILE" ]]; then
+    show_root_menu
+    return
+  fi
+
+  index=$(build_menu_index)
+  choice=$(cut -f1 <<<"$index" | rofi -dmenu -i -p "Go" -width 460 -lines 15 2>/dev/null)
+  [[ -z "$choice" || "$choice" == "CNCLD" ]] && exit 0
+
+  run_menu_entry "$(awk -F'\t' -v choice="$choice" '$1 == choice { print; exit }' <<<"$index")"
 }
 
 go_to_menu() {

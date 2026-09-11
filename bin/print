@@ -27,6 +27,13 @@ else
   PRINTER=$(lpstat -p | awk '/^printer /{print $2}' | gum choose --header "Select a printer")
 fi
 
+# -------- Paper size --------
+if gum confirm "Paper size?" --affirmative "A4" --negative "Notebook"; then
+  NOTEBOOK=false
+else
+  NOTEBOOK=true
+fi
+
 # -------- Double-sided or single-sided --------
 if gum confirm "Print mode?" --affirmative "Double-sided" --negative "Single-sided"; then
   DOBLE=true
@@ -37,16 +44,125 @@ fi
 # -------- Confirmation --------
 gum confirm "Print '$FILE' on '$PRINTER'?" || exit 0
 
+WORKDIR=$(mktemp -d)
+trap 'rm -rf "$WORKDIR"' EXIT
+
+PRINTFILE="$FILE"
+
+# -------- Notebook imposition --------
+# The notebook pages measure 15.5 x 20.5 cm, which fits on A4 at full size. Each
+# page is scaled into that rectangle and the rectangle itself is stroked, so there
+# is a line to cut along.
+#
+# Single-sided jobs put the rectangle in the top-left corner: two of its sides are
+# then the factory edges of the sheet, so only two cuts are left to make. A corner
+# rectangle only lines up with its own back side if the sheet is flipped the right
+# way around, though, and the reinsertion flip depends on the printer and on how
+# the stack is put back, so double-sided jobs get a centered rectangle instead --
+# that one lands in the same spot whichever way the sheet is turned over.
+if [[ "$NOTEBOOK" == true ]]; then
+  if [[ "$DOBLE" == true ]]; then
+    CORNER=false
+    gum style --foreground 212 \
+      "Notebook pages (15.5 x 20.5 cm), centered: 4 cuts, but both sides line up on any flip."
+  else
+    CORNER=true
+    gum style --foreground 212 \
+      "Notebook pages (15.5 x 20.5 cm), top-left corner: only 2 cuts to make."
+  fi
+
+  PAGES=$(pdfinfo "$FILE" | awk '/^Pages:/{print $2}')
+  if [[ -z "$PAGES" ]]; then
+    gum style --foreground 196 "Error: could not read the page count of $FILE"
+    exit 1
+  fi
+
+  {
+    echo "%!PS-Adobe-3.0"
+    echo "<< /PageSize [595.276 841.890] >> setpagedevice"
+
+    for ((i = 1; i <= PAGES; i++)); do
+      pdftops -f "$i" -l "$i" -eps "$FILE" "$WORKDIR/page.eps" 2>/dev/null
+
+      # Fit the page inside the cut rectangle, preserving its aspect ratio.
+      grep -m1 '^%%BoundingBox:' "$WORKDIR/page.eps" |
+        awk -v cm=28.3464567 -v corner="$CORNER" '
+        function max(a, b) { return a > b ? a : b }
+        function min(a, b) { return a < b ? a : b }
+        {
+          # Sheet, and the printable window the PPD reports inside it.
+          sw = 595.276; sh = 841.890
+          mx0 = 12.472441; my0 = 12.472441; mx1 = 582.803149; my1 = 829.417323
+
+          fw = 15.5 * cm; fh = 20.5 * cm
+          if (corner == "true") { fx = 0;                 fy = sh - fh }
+          else                  { fx = (sw - fw) / 2;     fy = (sh - fh) / 2 }
+
+          # A corner rectangle runs off the printable window on two sides, so the
+          # artwork is fitted to the overlap rather than to the rectangle itself.
+          ax0 = max(fx, mx0); ay0 = max(fy, my0)
+          ax1 = min(fx + fw, mx1); ay1 = min(fy + fh, my1)
+          aw = ax1 - ax0; ah = ay1 - ay0
+
+          pw = $4 - $2; ph = $5 - $3
+          s = aw / pw; if (ah / ph < s) s = ah / ph
+
+          printf "save\n"
+          printf "0.75 setgray 0.4 setlinewidth newpath\n"
+          if (corner == "true")
+            printf "%.3f %.3f moveto %.3f %.3f lineto %.3f %.3f lineto stroke\n", fx, fy, fx + fw, fy, fx + fw, fy + fh
+          else
+            printf "%.3f %.3f %.3f %.3f rectstroke\n", fx, fy, fw, fh
+
+          printf "%.3f %.3f translate %.5f %.5f scale %.3f %.3f translate\n", ax0 + (aw - pw * s) / 2, ay0 + (ah - ph * s) / 2, s, s, -$2, -$3
+          printf "/EPSsave save def /showpage {} def\n"
+          printf "0 setgray 0 setlinecap 1 setlinewidth 0 setlinejoin 10 setmiterlimit [] 0 setdash newpath\n"
+        }'
+
+      echo "%%BeginDocument: page.eps"
+      cat "$WORKDIR/page.eps"
+      echo "%%EndDocument"
+      echo "EPSsave restore"
+      echo "restore"
+      echo "showpage"
+    done
+  } > "$WORKDIR/imposed.ps"
+
+  gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -dAutoRotatePages=/None \
+    -sOutputFile="$WORKDIR/imposed.pdf" "$WORKDIR/imposed.ps"
+
+  PRINTFILE="$WORKDIR/imposed.pdf"
+fi
+
+# -------- Pad to an even page count --------
+# The reverse pass pairs the Nth back side with the Nth sheet in the tray, so an
+# odd page count leaves one more sheet than back sides and shifts everything by
+# one. A trailing blank page keeps both stacks the same height.
+if [[ "$DOBLE" == true ]]; then
+  PAGES=$(pdfinfo "$PRINTFILE" | awk '/^Pages:/{print $2}')
+
+  if [[ -n "$PAGES" && $((PAGES % 2)) -eq 1 ]]; then
+    echo showpage > "$WORKDIR/blank.ps"
+    gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sPAPERSIZE=a4 \
+      -sOutputFile="$WORKDIR/blank.pdf" "$WORKDIR/blank.ps"
+    qpdf --empty --pages "$PRINTFILE" 1-z "$WORKDIR/blank.pdf" 1 -- "$WORKDIR/padded.pdf"
+
+    PRINTFILE="$WORKDIR/padded.pdf"
+    gum style --foreground 226 \
+      "Odd page count ($PAGES): appended a blank page to keep the back sides aligned."
+  fi
+fi
+
 if [[ "$DOBLE" == false ]]; then
   gum style --border rounded --padding "1 2" --margin "1 0" \
     --foreground 212 "Printing all pages..."
-  lp -d "$PRINTER" -o media=A4 "$FILE"
+  lp -d "$PRINTER" -o media=A4 "$PRINTFILE"
 else
   # -------- Step 1: odd --------
   gum style --border rounded --padding "1 2" --margin "1 0" \
     --foreground 212 "Step 1: printing ODD pages..."
 
-  lp -d "$PRINTER" -o page-set=odd -o media=A4 "$FILE"
+  lp -d "$PRINTER" -o page-set=odd -o media=A4 "$PRINTFILE"
 
   # -------- Wait --------
   gum style --foreground 226 \
@@ -56,10 +172,10 @@ else
   # -------- Step 2: even --------
   if gum confirm "Print order for even pages?" --affirmative "Reverse" --negative "Normal"; then
     gum style --foreground 212 "Printing EVEN pages (reverse order)..."
-    lp -d "$PRINTER" -o page-set=even -o outputorder=reverse -o media=A4 "$FILE"
+    lp -d "$PRINTER" -o page-set=even -o output-order=reverse -o media=A4 "$PRINTFILE"
   else
     gum style --foreground 212 "Printing EVEN pages (normal order)..."
-    lp -d "$PRINTER" -o page-set=even -o media=A4 "$FILE"
+    lp -d "$PRINTER" -o page-set=even -o media=A4 "$PRINTFILE"
   fi
 fi
 
