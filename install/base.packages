@@ -38,6 +38,7 @@ hyprland-preview-share-picker
 hyprlock
 hyprpicker
 hyprsunset
+img2pdf
 imv
 inetutils
 iwd
@@ -66,6 +67,7 @@ plocate
 plymouth
 polkit-gnome
 power-profiles-daemon
+qpdf
 qt5-wayland
 impala
 ripgrep

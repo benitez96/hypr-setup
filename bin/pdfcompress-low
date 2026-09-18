@@ -1,15 +1,18 @@
 #!/bin/bash
 
 # Compress PDF with low quality (ebook settings)
-# Usage: pdfcompress-low input.pdf output.pdf
-
-if [ "$#" -ne 2 ]; then
-  echo "Usage: $0 <input.pdf> <output.pdf>"
-  exit 1
-fi
+# Usage: pdfcompress-low [--no-sandbox] input.pdf output.pdf
 
 # Ghostscript never sees anything but the input file. See pdf-sandbox.
 source "$(dirname "$(readlink -f "$0")")/pdf-sandbox"
+
+sandbox_flags "$@"
+set -- "${sandbox_args[@]}"
+
+if [ "$#" -ne 2 ]; then
+  echo "Usage: $0 [--no-sandbox] <input.pdf> <output.pdf>"
+  exit 1
+fi
 
 staging=$(mktemp -d)
 trap 'rm -rf "$staging"' EXIT
@@ -17,7 +20,12 @@ trap 'rm -rf "$staging"' EXIT
 sandbox_input "$1"
 sandbox_output "$staging"
 
+# /ebook already implies sRGB; pinning it keeps a preset change from bringing
+# back UseDeviceIndependentColor, which rasterises transparency and drops every
+# image that has an /SMask. See pdfcompress-medium, where it was doing exactly
+# that.
 sandbox_run gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook \
+  -dColorConversionStrategy=/sRGB \
   -dNOPAUSE -dQUIET -dBATCH -dSAFER \
   -sOutputFile="$sandbox_out/compressed.pdf" "$sandbox_path" || exit 1
 

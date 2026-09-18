@@ -19,13 +19,14 @@
 # Paths resolve to the real ones when the jail is unavailable, so callers work
 # unchanged either way.
 #
-# PDF_SANDBOX=0 forces plain execution on the host.
+# --no-sandbox on any of the tools, or PDF_SANDBOX=0, forces plain execution.
 # PDF_SANDBOX=1 refuses to run at all when the jail is unavailable.
 # PDF_SANDBOX_MEMORY caps the memory the tools may use (default 2G).
 
 sandbox_binds=()
 sandbox_path=""
 sandbox_out=""
+sandbox_args=()
 
 _sandbox_state=""
 _sandbox_inputs=0
@@ -35,6 +36,25 @@ _sandbox_scope_probed=""
 # Ceiling for the jail's /tmp. It is a tmpfs, so without this a crafted PDF can
 # fill it and take the machine's RAM down with it.
 _sandbox_tmpfs_size=1073741824
+
+# Pull the sandbox's own flags out of the argument list. Sets $sandbox_args to
+# what is left, so callers do `sandbox_flags "$@"; set -- "${sandbox_args[@]}"`
+# and then parse their arguments as usual.
+sandbox_flags() {
+  sandbox_args=()
+  local arg
+  for arg in "$@"; do
+    case $arg in
+      --no-sandbox)
+        PDF_SANDBOX=0
+        echo "Running without isolation (--no-sandbox)" >&2
+        ;;
+      *)
+        sandbox_args+=("$arg")
+        ;;
+    esac
+  done
+}
 
 # Whether the jail is usable: bubblewrap installed, unprivileged user
 # namespaces allowed by the kernel, and not disabled through PDF_SANDBOX.

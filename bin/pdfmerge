@@ -1,15 +1,39 @@
 #!/bin/bash
 
-# Merge multiple PDFs into one
-# Usage: pdfmerge input1.pdf input2.pdf ... output.pdf
+# Merge PDFs and images into a single PDF
+# Usage: pdfmerge [--no-sandbox] [--no-compress|--compress-medium] input1.pdf input2.png ... output.pdf
+#
+# Every input is compressed with ghostscript on its own and the pieces are then
+# joined with qpdf, which copies the objects untouched. Ghostscript used to do
+# the joining too, and that was the bug: unless it is told to convert colour to
+# sRGB it cannot carry a transparency group, so it rasterised the page and every
+# image with an /SMask was shredded into thousands of one-pixel strips and
+# dropped. The old call passed no colour strategy at all.
+
+# gs, img2pdf and qpdf never see anything but the input files. See pdf-sandbox.
+source "$(dirname "$(readlink -f "$0")")/pdf-sandbox"
+
+sandbox_flags "$@"
+set -- "${sandbox_args[@]}"
+
+# Compression is on by default: these merges are for handing documents in, not
+# for archiving masters.
+pdfsettings=/ebook
+args=()
+for arg in "$@"; do
+  case $arg in
+    --no-compress) pdfsettings="" ;;
+    --compress-low) pdfsettings=/ebook ;;
+    --compress-medium) pdfsettings=/printer ;;
+    *) args+=("$arg") ;;
+  esac
+done
+set -- "${args[@]}"
 
 if [ "$#" -lt 2 ]; then
-  echo "Uso: $0 <input1> <input2> ... <output.pdf>"
+  echo "Uso: $0 [--no-sandbox] [--no-compress|--compress-medium] <input1> <input2> ... <output.pdf>"
   exit 1
 fi
-
-# img2pdf and gs never see anything but the input files. See pdf-sandbox.
-source "$(dirname "$(readlink -f "$0")")/pdf-sandbox"
 
 salida="${@: -1}"
 entradas=("${@:1:$#-1}")
@@ -19,6 +43,18 @@ trap 'rm -rf "$tmpdir"' EXIT
 
 sandbox_output "$tmpdir"
 
+# Compress one PDF into the staging directory. Two flags here are not optional:
+# never pass -sPAPERSIZE or -dPDFFitPage (that is what rescaled every page to
+# A4), and always force sRGB. The /printer and /prepress presets otherwise use
+# UseDeviceIndependentColor, which cannot carry a transparency group, so gs
+# rasterises the page and every /SMask image is lost.
+comprimir() {
+  sandbox_run gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS="$pdfsettings" \
+    -dColorConversionStrategy=/sRGB \
+    -dNOPAUSE -dQUIET -dBATCH -dSAFER \
+    -sOutputFile="$2" "$1"
+}
+
 final_inputs=()
 n=0
 
@@ -26,26 +62,34 @@ for f in "${entradas[@]}"; do
   case "${f,,}" in
     *.pdf)
       sandbox_input "$f"
-      final_inputs+=("$sandbox_path")
+      origen=$sandbox_path
       ;;
     *.jpg|*.jpeg|*.png)
+      # Images become A4 pages, which is what the old ghostscript call did for
+      # them. PDFs keep whatever page size they already had.
       sandbox_input "$f"
-      sandbox_run img2pdf "$sandbox_path" -o "$sandbox_out/img_$n.pdf" || exit 1
-      final_inputs+=("$sandbox_out/img_$n.pdf")
-      n=$((n+1))
+      sandbox_run img2pdf --pagesize A4 --auto-orient \
+        "$sandbox_path" -o "$sandbox_out/img_$n.pdf" || exit 1
+      origen=$sandbox_out/img_$n.pdf
       ;;
     *)
       echo "Formato no soportado: $f"
       exit 1
       ;;
   esac
+
+  if [ -n "$pdfsettings" ]; then
+    comprimir "$origen" "$sandbox_out/pre_$n.pdf" || exit 1
+    origen=$sandbox_out/pre_$n.pdf
+  fi
+
+  final_inputs+=("$origen")
+  n=$((n + 1))
 done
 
-sandbox_run gs -dBATCH -dNOPAUSE -dQUIET -dSAFER \
-   -sDEVICE=pdfwrite \
-   -sPAPERSIZE=a4 \
-   -dPDFFitPage \
-   -sOutputFile="$sandbox_out/merged.pdf" \
-   "${final_inputs[@]}" || exit 1
+# qpdf exits 3 on warnings even though it wrote a good file; plenty of
+# real-world PDFs bend the spec. The warnings still reach stderr.
+sandbox_run qpdf --warning-exit-0 --empty \
+  --pages "${final_inputs[@]}" -- "$sandbox_out/merged.pdf" || exit 1
 
 mv "$tmpdir/merged.pdf" "$salida"

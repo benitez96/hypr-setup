@@ -1,15 +1,18 @@
 #!/bin/bash
 
 # Compress PDF with medium quality (printer settings)
-# Usage: pdfcompress-medium input.pdf output.pdf
-
-if [ "$#" -ne 2 ]; then
-  echo "Usage: $0 <input.pdf> <output.pdf>"
-  exit 1
-fi
+# Usage: pdfcompress-medium [--no-sandbox] input.pdf output.pdf
 
 # Ghostscript never sees anything but the input file. See pdf-sandbox.
 source "$(dirname "$(readlink -f "$0")")/pdf-sandbox"
+
+sandbox_flags "$@"
+set -- "${sandbox_args[@]}"
+
+if [ "$#" -ne 2 ]; then
+  echo "Usage: $0 [--no-sandbox] <input.pdf> <output.pdf>"
+  exit 1
+fi
 
 staging=$(mktemp -d)
 trap 'rm -rf "$staging"' EXIT
@@ -17,7 +20,11 @@ trap 'rm -rf "$staging"' EXIT
 sandbox_input "$1"
 sandbox_output "$staging"
 
+# -dColorConversionStrategy is not cosmetic: the /printer preset defaults to
+# UseDeviceIndependentColor, which cannot carry a transparency group, so gs
+# rasterises the page and drops every image that has an /SMask.
 sandbox_run gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/printer \
+  -dColorConversionStrategy=/sRGB \
   -dNOPAUSE -dQUIET -dBATCH -dSAFER \
   -sOutputFile="$sandbox_out/compressed.pdf" "$sandbox_path" || exit 1
 
